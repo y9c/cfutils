@@ -4,6 +4,7 @@ align two sequence with ref
 """
 
 import sys
+import logging
 from io import StringIO
 from subprocess import PIPE, STDOUT, Popen
 
@@ -11,6 +12,20 @@ from Bio import SeqIO, pairwise2
 from Bio.Alphabet.IUPAC import IUPACUnambiguousDNA
 from Bio.Blast import NCBIXML
 from Bio.Blast.Applications import NcbiblastnCommandline as blast
+
+try:
+    assert sys.version_info > (3, 6)
+except AssertionError:
+    raise RuntimeError('Requests-HTML requires Python 3.6+!')
+
+LOGGER: logging.Logger = logging.getLogger()
+HANDLER: logging.StreamHandler = logging.StreamHandler()
+FORMATTER: logging.Formatter = logging.Formatter(
+    '%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
+HANDLER.setFormatter(FORMATTER)
+LOGGER.addHandler(HANDLER)
+# logger.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.INFO)
 
 # Wether or not ambiguous bases should be called different or not
 ignore_ambig = True
@@ -24,12 +39,12 @@ def run_blast(seq, subject_fasta):
         gapextend=2,
         reward=1,
         penalty=-2,
-        outfmt=5
-    )  #, out='blastoutput.xml' ) #outfmt="6 qseqid sseqid evalue slen mismatch" )#, out='wrair2368t_pb2.xml' )
+        outfmt=5)
+    #, out='blastoutput.xml' ) #outfmt="6 qseqid sseqid evalue slen mismatch" )#, out='wrair2368t_pb2.xml' )
     try:
         p = Popen(str(cline).split(), stdout=PIPE, stdin=PIPE, stderr=STDOUT)
     except OSError:
-        print("Please ensure blastn is installed and in your PATH")
+        LOGGER.error("Please ensure blastn is installed and in your PATH")
         sys.exit(1)
     stdeo, stdin = p.communicate(input=seq.format('fasta').encode())
 
@@ -42,14 +57,14 @@ def parse_blast(seq, output):
     try:
         blast_records = NCBIXML.read(blast_output)
     except ValueError as e:
-        sys.stderr.write("-----Blast output------")
-        sys.stderr.write(blast_output.getvalue())
+        LOGGER.info("-----Blast output------")
+        LOGGER.info(blast_output.getvalue())
         if blast_output.getvalue(
         ) == "BLAST engine error: XML formatting is only supported for a database search":
-            sys.stderr.write(
+            LOGGER.warning(
                 "Please ensure that you are using the latest blastx version of blastn"
             )
-            sys.stderr.write(
+            LOGGER.warning(
                 "You may need to update your environment's PATH variable")
         raise e
 
@@ -160,23 +175,24 @@ def align(query_fasta, subject_fasta, ignore_ambiguous):
             print(m)
         tcount += 1
 
+
 def run_align(query_record, subject_fasta, ignore_ambiguous):
     global ignore_ambig
     ignore_ambig = ignore_ambiguous
     if not ignore_ambig:
-        sys.stderr.write("Ignoring ambiguous bases")
+        LOGGER.info("Ignoring ambiguous bases")
 
     mutations = []
-    mutations, r1 = run_blast(seq, subject_fasta)
-    if r1 == -1:
-        sys.stderr.write(
-            "%s failed to blast falling back to tcoffee. Blast output:\n%s"
-            % (seq.id, r1))
-        mutations, r2 = tcoffee_align(ref, seq)
-        if r2 == -1:
-            sys.stderr.write(
+    mutations, status_blastn = run_blast(seq, subject_fasta)
+    if status_blastn == -1:
+        LOGGER.error(
+            "%s failed to blast falling back to tcoffee. Blast output:\n%s" %
+            (seq.id, status_blastn))
+        mutations, status_tcoffee = tcoffee_align(ref, seq)
+        if status_tcoffee == -1:
+            LOGGER.error(
                 "%s failed to align with tcoffee as well. Tcoffee output:\n%s"
-                % (seq.id, r2))
+                % (seq.id, status_tcoffee))
     print("%s: Total mutations: %s" % (seq.description, len(mutations)))
     for m in mutations:
         print(m)
@@ -191,4 +207,3 @@ if __name__ == '__main__':
     from parser import parse_abi
     seq = parse_abi(input_file, trim=True)
     run_align(seq, subject_fasta, ignore_ambiguous=True)
-
