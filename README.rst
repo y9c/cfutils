@@ -13,13 +13,13 @@ install dependance
 
 .. code_block:: bash
 
-  make init
+   make init
 
 do unittest
 
 .. code_block:: bash
 
-  make test
+   make test
 
 
 How to use?
@@ -27,7 +27,7 @@ How to use?
  
 .. code_block:: python
 
-  import cfutils as cf
+   import cfutils as cf
 
 
 ChangeLog
