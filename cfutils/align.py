@@ -16,7 +16,7 @@ from Bio.Blast.Applications import NcbiblastnCommandline as blast
 try:
     assert sys.version_info > (3, 6)
 except AssertionError:
-    raise RuntimeError('Requests-HTML requires Python 3.6+!')
+    raise RuntimeError('cfutils requires Python 3.6+!')
 
 LOGGER: logging.Logger = logging.getLogger()
 HANDLER: logging.StreamHandler = logging.StreamHandler()
