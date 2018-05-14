@@ -29,6 +29,7 @@ import cfutils as cf
 ## ChangeLog
 
 - build as python package for pypi
+- fix bug that highlihgting wrong base
 
 ## TODO
 
