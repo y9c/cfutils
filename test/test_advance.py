@@ -42,7 +42,7 @@ class TestFunc(unittest.TestCase):
         plt.savefig('./temp/test.pdf')
         input_file.close()
 
-    def test_plot_mutation(self):
+    def test_plot_mutation_rv(self):
         """Test plot mutation region"""
         from pkg_resources import resource_stream
         input_file = resource_stream(__name__, '../data/C5-3k_SEQ_R_A04.ab1')
@@ -65,7 +65,7 @@ class TestFunc(unittest.TestCase):
         plt.savefig('./temp/test.pdf')
         input_file.close()
 
-    def test_plot_mutation_rv(self):
+    def test_plot_mutation(self):
         """Test plot mutation region"""
         from pkg_resources import resource_stream
         input_file = resource_stream(__name__, '../data/B5-M13R_B07.ab1')
