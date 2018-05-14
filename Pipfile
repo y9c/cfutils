@@ -13,6 +13,7 @@ yapf = "*"
 pylint = "*"
 twine = "*"
 setuptools = "*"
+python-language-server = "*"
 
 [requires]
 python_version = "3.6"

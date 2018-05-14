@@ -21,13 +21,14 @@ class TestShowFunc(unittest.TestCase):
     def test_plot_chromatograph(self):
         """Test plot"""
         from pkg_resources import resource_stream
-        input_file = resource_stream(__name__, '../data/A4-3k_SEQ_R_D01.ab1')
+        input_file = resource_stream(__name__, '../data/B5-M13R_B07.ab1')
         seq = parse_abi(input_file, trim=True)
 
         import matplotlib.pyplot as plt
         fig, ax = plt.subplots(1, 1, figsize=(15, 6))
-        plot_chromatograph(seq, ax, xlim=[22, 44])
-        highlight_base(30, seq, ax)
+        # zero base close and open-1? [0,10] --> site: 1,2,3..9
+        plot_chromatograph(seq, ax, xlim=[0, 10])
+        highlight_base(3, seq, ax)
         os.makedirs('./temp', exist_ok=True)
         plt.savefig('./temp/test.pdf')
         input_file.close()

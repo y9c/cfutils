@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "a3a9a980e149b81cc0bb275b5250f5f021477cedeaa37f53ef623b0e1bdbd4cf"
+            "sha256": "4ac895ea27df222653034f9b41e9ac5222f0feace81432d2dc879d3279e9fa8d"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -183,6 +183,12 @@
             ],
             "version": "==3.0.4"
         },
+        "future": {
+            "hashes": [
+                "sha256:e39ced1ab767b5936646cedba8bcce582398233d6a627067d4c6a454c90cfedb"
+            ],
+            "version": "==0.16.0"
+        },
         "greenlet": {
             "hashes": [
                 "sha256:09ef2636ea35782364c830f07127d6c7a70542b178268714a9a9ba16318e7e8b",
@@ -219,6 +225,13 @@
                 "sha256:ec9ef8f4a9bc6f71eec99e1806bfa2de401650d996c59330782b89a5555c1497"
             ],
             "version": "==4.3.4"
+        },
+        "jedi": {
+            "hashes": [
+                "sha256:1972f694c6bc66a2fac8718299e2ab73011d653a6d8059790c3476d2353b99ad",
+                "sha256:5861f6dc0c16e024cbb0044999f9cf8013b292c05f287df06d3d991a87a4eb89"
+            ],
+            "version": "==0.12.0"
         },
         "lazy-object-proxy": {
             "hashes": [
@@ -288,12 +301,27 @@
             "index": "pypi",
             "version": "==0.2.6"
         },
+        "parso": {
+            "hashes": [
+                "sha256:62bd6bf7f04ab5c817704ff513ef175328676471bdef3629d4bdd46626f75551",
+                "sha256:a75a304d7090d2c67bd298091c14ef9d3d560e3c53de1c239617889f61d1d307"
+            ],
+            "version": "==0.2.0"
+        },
         "pkginfo": {
             "hashes": [
                 "sha256:5878d542a4b3f237e359926384f1dde4e099c9f5525d236b1840cf704fa8d474",
                 "sha256:a39076cb3eb34c333a0dd390b568e9e1e881c7bf2cc0aee12120636816f55aee"
             ],
             "version": "==1.4.2"
+        },
+        "pluggy": {
+            "hashes": [
+                "sha256:7f8ae7f5bdf75671a718d2daf0a64b7885f74510bcd98b1a0bb420eb9a9d0cff",
+                "sha256:d345c8fe681115900d6da8d048ba67c25df42973bda370783cd58826442dcd7c",
+                "sha256:e160a7fcf25762bb60efc7e171d4497ff1d8d2d75a3d0df7a21b76821ecbf5c5"
+            ],
+            "version": "==0.6.0"
         },
         "pylint": {
             "hashes": [
@@ -302,6 +330,13 @@
             ],
             "index": "pypi",
             "version": "==1.8.4"
+        },
+        "python-language-server": {
+            "hashes": [
+                "sha256:3256dd149fb9142935916b42e9a7fefb9d8a0b7c3a6333f14d77b62ed2322058"
+            ],
+            "index": "pypi",
+            "version": "==0.18.0"
         },
         "requests": {
             "hashes": [

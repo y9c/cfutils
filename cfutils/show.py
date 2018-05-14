@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 '''
 author:     Fabio Zanini
 date:       09/12/13
@@ -23,17 +22,16 @@ FORMATTER: logging.Formatter = logging.Formatter(
     '%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
 HANDLER.setFormatter(FORMATTER)
 LOGGER.addHandler(HANDLER)
-# LOGGER.setLevel(logging.DEBUG)
-LOGGER.setLevel(logging.INFO)
-
+LOGGER.setLevel(logging.DEBUG)
+# LOGGER.setLevel(logging.INFO)
 
 # Globals
 BASES = ['A', 'C', 'G', 'T']
 COLORS = defaultdict(lambda: 'purple', {
-    'A': 'r',
+    'A': 'g',
     'C': 'b',
-    'G': 'g',
-    'T': 'k'
+    'G': 'k',
+    'T': 'r'
 })
 
 
@@ -84,7 +82,7 @@ def plot_chromatograph(seq, ax=None, xlim=None, peaklim=None):
     # Plot bases at peak positions
     LOGGER.debug(seq)
     for i, peak in enumerate(peaks):
-        LOGGER.debug("%i, %f", i, peak)
+        LOGGER.debug("%i, %f, [%i, %i]", i, peak, xlim[0], xlim[1])
         ax.text(
             peak,
             -0.11,
@@ -101,9 +99,10 @@ def plot_chromatograph(seq, ax=None, xlim=None, peaklim=None):
     ax.legend(loc='upper left', bbox_to_anchor=(0.93, 0.99))
 
 
-def closest_peak(pos_click, seq):
+def closest_peak(pos_highlight, seq):
     peaks = seq.annotations['peak positions']
-    (i, peak) = min(enumerate(peaks), key=lambda x: abs(x[1] - pos_click))
+    (i, peak) = min(
+        enumerate(peaks), key=lambda x: abs(x[0] + 1 - pos_highlight))
     return {'index': i, 'peak': peak}
 
 
@@ -111,13 +110,13 @@ def peak_position(i, seq):
     return seq.annotations['peak positions'][i]
 
 
-def highlight_base(pos_click, seq, ax):
+def highlight_base(pos_highlight, seq, ax):
     '''Highlight the area around a peak with a rectangle'''
 
     #  trace = seq.annotations['channel 1']
     peaks = seq.annotations['peak positions']
 
-    peak_obj = closest_peak(pos_click, seq)
+    peak_obj = closest_peak(pos_highlight, seq)
     i = peak_obj['index']
     peak = peak_obj['peak']
 
