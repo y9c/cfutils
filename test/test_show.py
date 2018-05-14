@@ -21,7 +21,7 @@ class TestShowFunc(unittest.TestCase):
     def test_plot_chromatograph(self):
         """Test plot"""
         from pkg_resources import resource_stream
-        input_file = resource_stream(__name__, '../data/A2-3k_SEQ_R_B01.ab1')
+        input_file = resource_stream(__name__, '../data/A4-3k_SEQ_R_D01.ab1')
         seq = parse_abi(input_file, trim=True)
 
         import matplotlib.pyplot as plt

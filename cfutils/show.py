@@ -8,7 +8,24 @@ modified:   By Ye Chang in 2018-05-14
 '''
 
 # Modules
+import logging
+import sys
 from collections import defaultdict
+
+try:
+    assert sys.version_info > (3, 6)
+except AssertionError:
+    raise RuntimeError('cfutils requires Python 3.6+!')
+
+LOGGER: logging.Logger = logging.getLogger()
+HANDLER: logging.StreamHandler = logging.StreamHandler()
+FORMATTER: logging.Formatter = logging.Formatter(
+    '%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
+HANDLER.setFormatter(FORMATTER)
+LOGGER.addHandler(HANDLER)
+# LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.INFO)
+
 
 # Globals
 BASES = ['A', 'C', 'G', 'T']
@@ -65,9 +82,9 @@ def plot_chromatograph(seq, ax=None, xlim=None, peaklim=None):
         ax.plot(x, y, color=COLORS[base], lw=2, label=base)
 
     # Plot bases at peak positions
-    print(seq)
+    LOGGER.debug(seq)
     for i, peak in enumerate(peaks):
-        print(i, peak)
+        LOGGER.debug("%i, %f", i, peak)
         ax.text(
             peak,
             -0.11,
