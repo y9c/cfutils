@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 """
 align two sequence with ref
 """
@@ -183,27 +184,18 @@ def run_align(query_record, subject_fasta, ignore_ambiguous):
         LOGGER.info("Ignoring ambiguous bases")
 
     mutations = []
-    mutations, status_blastn = run_blast(seq, subject_fasta)
+    mutations, status_blastn = run_blast(query_record, subject_fasta)
     if status_blastn == -1:
         LOGGER.error(
             "%s failed to blast falling back to tcoffee. Blast output:\n%s" %
-            (seq.id, status_blastn))
-        mutations, status_tcoffee = tcoffee_align(ref, seq)
+            (query_record.id, status_blastn))
+        mutations, status_tcoffee = tcoffee_align(query_record, query_record)
         if status_tcoffee == -1:
             LOGGER.error(
                 "%s failed to align with tcoffee as well. Tcoffee output:\n%s"
-                % (seq.id, status_tcoffee))
-    print("%s: Total mutations: %s" % (seq.description, len(mutations)))
+                % (query_record.id, status_tcoffee))
+    print("%s: Total mutations: %s" % (query_record.description, len(mutations)))
     for m in mutations:
         print(m)
 
 
-# Test script
-if __name__ == '__main__':
-
-    from pkg_resources import resource_stream
-    input_file = resource_stream(__name__, '../data/A2-3k_SEQ_R_B01.ab1')
-    subject_fasta = './data/3kref.fa'
-    from parser import parse_abi
-    seq = parse_abi(input_file, trim=True)
-    run_align(seq, subject_fasta, ignore_ambiguous=True)

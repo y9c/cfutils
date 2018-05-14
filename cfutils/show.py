@@ -4,6 +4,7 @@
 author:     Fabio Zanini
 date:       09/12/13
 content:    Plot functions for Sanger chromatographs.
+modified:   By Ye Chang in 2018-05-14
 '''
 
 # Modules
@@ -127,24 +128,3 @@ def highlight_base(pos_click, seq, ax):
         alpha=0.3)
     ax.add_patch(rec)
     return {'index': i, 'peak': peak, 'rec': rec}
-
-
-# Test script
-if __name__ == '__main__':
-
-    from parser import parse_abi
-    from pkg_resources import resource_stream
-    input_file = resource_stream(__name__, '../data/A2-3k_SEQ_R_B01.ab1')
-    #  seq = parse_abi(input_file, trim=False)
-    seq = parse_abi(input_file, trim=True)
-
-    import matplotlib.pyplot as plt
-    fig, ax = plt.subplots(1, 1, figsize=(15, 6))
-
-    plot_chromatograph(seq, ax, xlim=[0, 20])
-    #  highlight_base(30, seq, ax)
-
-    plt.ion()
-    #  plt.show(block=True)
-    #  plt.savefig("test_un.pdf")
-    plt.savefig("test.pdf")
