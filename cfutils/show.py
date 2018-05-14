@@ -78,6 +78,7 @@ def plot_chromatograph(seq, ax=None, xlim=None, peaklim=None):
     for base in BASES:
         y = [1.0 * ci / trmax for ci in traces[BASES.index(base)]]
         ax.plot(x, y, color=COLORS[base], lw=2, label=base)
+        ax.fill_between(x, 0, y, facecolor=COLORS[base], alpha=0.125)
 
     # Plot bases at peak positions
     LOGGER.debug(seq)
@@ -95,7 +96,7 @@ def plot_chromatograph(seq, ax=None, xlim=None, peaklim=None):
         xmin=peaks[0] - max(2, 0.02 * (peaks[-1] - peaks[0])),
         xmax=peaks[-1] + max(2, 0.02 * (peaks[-1] - peaks[0])))
     ax.set_yticklabels([])
-    ax.grid()
+    ax.grid(False)
     ax.legend(loc='upper left', bbox_to_anchor=(0.93, 0.99))
 
 
@@ -140,7 +141,7 @@ def highlight_base(pos_highlight, seq, ax):
     rec = Rectangle(
         (xmin, ymin), (xmax - xmin), (ymax - ymin),
         edgecolor='none',
-        facecolor='blue',
+        facecolor='yellow',
         alpha=0.3)
     ax.add_patch(rec)
     return {'index': i, 'peak': peak, 'rec': rec}
