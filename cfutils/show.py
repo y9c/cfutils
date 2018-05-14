@@ -98,7 +98,7 @@ def plot_chromatograph(seq, ax=None, xlim=None, peaklim=None):
         xmax=peaks[-1] + max(2, 0.02 * (peaks[-1] - peaks[0])))
     ax.set_yticklabels([])
     ax.grid()
-    ax.legend(loc='upper left', bbox_to_anchor=(0.95, 1.0))
+    ax.legend(loc='upper left', bbox_to_anchor=(0.93, 0.99))
 
 
 def closest_peak(pos_click, seq):

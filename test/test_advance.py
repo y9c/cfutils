@@ -65,7 +65,29 @@ class TestFunc(unittest.TestCase):
         plt.savefig('./temp/test.pdf')
         input_file.close()
 
+    def test_plot_mutation_rv(self):
+        """Test plot mutation region"""
+        from pkg_resources import resource_stream
+        input_file = resource_stream(__name__, '../data/B5-M13R_B07.ab1')
+        seq = parse_abi(input_file, trim=False)
 
-#
+        subject_fasta = './data/3kref.fa'
+        mutations = align(seq, subject_fasta, ignore_ambig=True)
+        input_file.close()
+
+        # Warning zero base and one base!!!
+        # there is a bug here
+        selected_mutation = mutations[5][2] + 2
+        import matplotlib.pyplot as plt
+        fig, ax = plt.subplots(1, 1, figsize=(15, 6))
+        plot_chromatograph(
+            seq, ax, xlim=[selected_mutation - 10, selected_mutation + 10])
+        highlight_base(selected_mutation, seq, ax)
+        print(selected_mutation)
+        os.makedirs('./temp', exist_ok=True)
+        plt.savefig('./temp/test.pdf')
+        input_file.close()
+
+
 if __name__ == '__main__':
     unittest.main()
