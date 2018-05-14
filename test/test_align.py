@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 """test for cfutils"""
 
 import sys
@@ -17,10 +16,9 @@ except AssertionError:
 class TestAlignFunc(unittest.TestCase):
     """Test cfutils/align.py"""
 
-    def test_plot_chromatograph(self):
+    def test_align(self):
         """Test align"""
         from pkg_resources import resource_stream
-        #  input_file = resource_stream(__name__, '../data/A4-3k_SEQ_R_D01.ab1')
         input_file = resource_stream(__name__, '../data/C5-3k_SEQ_R_A04.ab1')
         seq = parse_abi(input_file, trim=False)
 
