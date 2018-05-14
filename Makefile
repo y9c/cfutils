@@ -1,7 +1,8 @@
+.PHONY: init test
+
 init:
-    pip install -r requirements.txt
+	pipenv install
 
 test:
-    py.test tests
-
-.PHONY: init test
+	python -m unittest test.test_basic
+	python -m unittest test.test_show

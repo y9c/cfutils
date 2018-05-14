@@ -1,1 +1,2 @@
-__version__ = "0.1.3"
+# export function in show modual?
+# from .show import plot_chromatograph
