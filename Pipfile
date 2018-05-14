@@ -11,6 +11,8 @@ matplotlib = "*"
 neovim = "*"
 yapf = "*"
 pylint = "*"
+twine = "*"
+setuptools = "*"
 
 [requires]
 python_version = "3.6"
