@@ -76,3 +76,5 @@ import cfutils as cf
 - [ ] add a doc
 - [x] change xaxis by peak location
 - [ ] fix bug that chromatogram switch pos after trim
+- [x] wrap as a cli app
+- [ ] return quality score in output
