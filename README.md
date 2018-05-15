@@ -6,7 +6,7 @@ for sanger sequencing data visualizing, alignment, mutation calling, and trimmin
 
 ## Demo
 
-![plot chromatogram with mutation](https://raw.githubusercontent.com/yech1990/cfutils/master/data/plot.svg)
+![plot chromatogram with mutation](https://raw.githubusercontent.com/yech1990/cfutils/master/data/plot.png)
 
 ## How to install?
 
