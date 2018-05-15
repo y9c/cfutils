@@ -28,8 +28,7 @@ class TestFunc(unittest.TestCase):
         mutations = align(seq, subject_fasta, ignore_ambig=True)
         input_file.close()
 
-        #  selected_mutation = mutations[5][2]
-        selected_mutation = 224
+        selected_mutation = mutations[4][2]
         import matplotlib.pyplot as plt
         fig, ax = plt.subplots(1, 1, figsize=(15, 6))
         plot_chromatograph(

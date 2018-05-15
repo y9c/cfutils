@@ -33,5 +33,6 @@ import cfutils as cf
 
 ## TODO
 
-- call mutation by alignment and plot Chromatogram graphic
-- add a doc
+- [ ] call mutation by alignment and plot Chromatogram graphic
+- [ ] add a doc
+- [x] change xaxis by peak location
