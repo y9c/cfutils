@@ -4,6 +4,9 @@
 
 for sanger sequencing data visualizing, alignment, mutation calling, and trimming etc.
 
+## Demo
+
+![plot chromatogram with mutation](./data/plot.svg)
 
 ## How to install?
 
