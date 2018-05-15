@@ -20,12 +20,8 @@ class TestFunc(unittest.TestCase):
 
     def test_plot_mutation(self):
         """Test plot mutation region"""
-        from pkg_resources import resource_stream
-        input_file = resource_stream(__name__, '../data/B5-M13R_B07.ab1')
-        query_record = parse_abi(input_file, trim=True)
-
-        subject_fasta = './data/3kref.fa'
-        subject_record = parse_fasta(subject_fasta)
+        query_record = parse_abi('./data/B5-M13R_B07.ab1', trim=True)
+        subject_record = parse_fasta('./data/3kref.fa')
 
         mutations = align(query_record, subject_record, ignore_ambig=True)
 
@@ -33,13 +29,13 @@ class TestFunc(unittest.TestCase):
         import matplotlib.pyplot as plt
         fig, ax = plt.subplots(1, 1, figsize=(15, 6))
         plot_chromatograph(
-            query_record, ax, xlim=[selected_mutation - 10, selected_mutation + 10])
+            query_record,
+            ax,
+            xlim=[selected_mutation - 10, selected_mutation + 10])
         highlight_base(selected_mutation, query_record, ax)
         print(selected_mutation)
         os.makedirs('./temp', exist_ok=True)
         plt.savefig('./temp/test.pdf')
-
-        input_file.close()
 
 
 if __name__ == '__main__':
