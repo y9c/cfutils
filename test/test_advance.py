@@ -36,7 +36,7 @@ class TestFunc(unittest.TestCase):
         highlight_base(selected_mutation, seq, ax)
         print(selected_mutation)
         os.makedirs('./temp', exist_ok=True)
-        plt.savefig('./temp/test.svg')
+        plt.savefig('./temp/test.png')
         input_file.close()
 
 
