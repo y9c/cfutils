@@ -46,7 +46,7 @@ def rc_seq(seq):
 # functions for align
 def run_blast(seq, subject_fasta, ignore_ambig=False):
     cline = blast(
-        cmd='./bin/blastn',
+        cmd='blastn',
         subject=subject_fasta,
         gapopen=5,
         gapextend=2,
