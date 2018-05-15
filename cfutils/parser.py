@@ -19,7 +19,7 @@ import datetime
 import struct
 from os.path import basename
 
-from Bio import Alphabet
+from Bio import Alphabet, SeqIO
 from Bio._py3k import _as_bytes, _bytes_to_string
 from Bio.Alphabet.IUPAC import ambiguous_dna, unambiguous_dna
 from Bio.Seq import Seq
@@ -370,9 +370,12 @@ def parse_abi(filename, trim=True):
     return seq
 
 
-# Test script
-if __name__ == '__main__':
+def parse_fasta(filename: str) -> SeqRecord:
+    """parse_fasta
+    may support other type of file in the future
 
-    from pkg_resources import resource_stream
-    input_file = resource_stream(__name__, 'data/FZ01_A12_096.ab1')
-    seq = parse_abi(input_file)
+    :param filename:
+    :type filename: str
+    :rtype: SeqRecord
+    """
+    return SeqIO.read(filename, "fasta")

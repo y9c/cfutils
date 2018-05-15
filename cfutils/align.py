@@ -7,11 +7,14 @@ import logging
 import sys
 from io import StringIO
 from subprocess import PIPE, STDOUT, Popen
+from typing import List, Union, Tuple
+import tempfile
 
 from Bio.Alphabet.IUPAC import IUPACUnambiguousDNA, ambiguous_dna
 from Bio.Blast import NCBIXML
 from Bio.Blast.Applications import NcbiblastnCommandline as blast
 from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
 
 try:
     assert sys.version_info > (3, 6)
@@ -25,6 +28,7 @@ FORMATTER: logging.Formatter = logging.Formatter(
 HANDLER.setFormatter(FORMATTER)
 LOGGER.addHandler(HANDLER)
 LOGGER.setLevel(logging.DEBUG)
+
 #  LOGGER.setLevel(logging.INFO)
 
 
@@ -44,27 +48,37 @@ def rc_seq(seq):
 
 
 # functions for align
-def run_blast(seq, subject_fasta, ignore_ambig=False):
-    cline = blast(
-        cmd='blastn',
-        subject=subject_fasta,
-        gapopen=5,
-        gapextend=2,
-        reward=3,
-        penalty=-4,
-        outfmt=5)
-    try:
-        p = Popen(str(cline).split(), stdout=PIPE, stdin=PIPE, stderr=STDOUT)
-    except OSError:
-        LOGGER.error("Please ensure blastn is installed and in your PATH")
-        sys.exit(1)
-    stdeo, stdin = p.communicate(input=seq.format('fasta').encode())
-    LOGGER.debug(stdeo.decode())
+def run_blast(query_record: SeqRecord, subject_record: SeqRecord, ignore_ambig: bool=False) -> Tuple[List, int]:
+    with tempfile.NamedTemporaryFile(
+    ) as query_file, tempfile.NamedTemporaryFile() as subject_file:
+        query_file.write(query_record.format('fasta').encode())
+        query_file.seek(0)
+        subject_file.write(subject_record.format('fasta').encode())
+        subject_file.seek(0)
 
-    return parse_blast(seq, stdeo, ignore_ambig=ignore_ambig)
+        cline = blast(
+            cmd='blastn',
+            query=query_file.name,
+            subject=subject_file.name,
+            gapopen=5,
+            gapextend=2,
+            reward=3,
+            penalty=-4,
+            outfmt=5)
+        try:
+            p = Popen(str(cline).split(), stdout=PIPE, stderr=STDOUT)
+        except OSError:
+            LOGGER.error("Please ensure blastn is installed and in your PATH")
+            sys.exit(1)
+        stdeo, stdin = p.communicate()
+        LOGGER.debug(stdeo.decode())
+        print(cline)
+        print(stdeo)
+
+    return parse_blast(stdeo, ignore_ambig=ignore_ambig)
 
 
-def parse_blast(seq, output, ignore_ambig=False):
+def parse_blast(output, ignore_ambig=False):
     blast_output = StringIO(output.decode())
 
     try:
@@ -93,7 +107,13 @@ def parse_blast(seq, output, ignore_ambig=False):
     return (mutations, 1)
 
 
-def get_muts(hsp, ignore_ambig=False):
+def get_muts(hsp, ignore_ambig=False) -> List[List[Union[int, str]]]:
+    """get_muts
+
+    :param hsp:
+    :param ignore_ambig:
+    :rtype: List[List[Union[int, str]]]
+    """
     mutations = []
     if hsp.sbjct_start < hsp.sbjct_end:
         sbjct_loc = hsp.sbjct_start
@@ -128,10 +148,21 @@ def get_muts(hsp, ignore_ambig=False):
     return mutations
 
 
-def align(query_record, subject_fasta, ignore_ambig=False):
-    mutations = []
-    mutations, status_blastn = run_blast(
-        query_record, subject_fasta, ignore_ambig=ignore_ambig)
+def align(query_record: SeqRecord,
+          subject_record: SeqRecord,
+          ignore_ambig=False) -> List[List[Union[int, str]]]:
+    """align
+
+    :param query_record:
+    :type query_record: SeqRecord
+    :param subject_record:
+    :type subject_record: SeqRecord
+    :param ignore_ambig:
+    :rtype: List[List[Union[int, str]]]
+    """
+    mutations, _ = run_blast(
+        query_record, subject_record, ignore_ambig=ignore_ambig)
+
     LOGGER.info("%s: Total mutations: %s" % (query_record.description,
                                              len(mutations)))
     for m in mutations:

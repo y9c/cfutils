@@ -6,7 +6,7 @@ import sys
 import unittest
 
 from cfutils.align import align
-from cfutils.parser import parse_abi
+from cfutils.parser import parse_abi, parse_fasta
 from cfutils.show import highlight_base, plot_chromatograph
 
 try:
@@ -22,21 +22,23 @@ class TestFunc(unittest.TestCase):
         """Test plot mutation region"""
         from pkg_resources import resource_stream
         input_file = resource_stream(__name__, '../data/B5-M13R_B07.ab1')
-        seq = parse_abi(input_file, trim=True)
+        query_record = parse_abi(input_file, trim=True)
 
         subject_fasta = './data/3kref.fa'
-        mutations = align(seq, subject_fasta, ignore_ambig=True)
-        input_file.close()
+        subject_record = parse_fasta(subject_fasta)
 
-        selected_mutation = mutations[4][2]
+        mutations = align(query_record, subject_record, ignore_ambig=True)
+
+        selected_mutation = mutations[3][2]
         import matplotlib.pyplot as plt
         fig, ax = plt.subplots(1, 1, figsize=(15, 6))
         plot_chromatograph(
-            seq, ax, xlim=[selected_mutation - 10, selected_mutation + 10])
-        highlight_base(selected_mutation, seq, ax)
+            query_record, ax, xlim=[selected_mutation - 10, selected_mutation + 10])
+        highlight_base(selected_mutation, query_record, ax)
         print(selected_mutation)
         os.makedirs('./temp', exist_ok=True)
-        plt.savefig('./temp/test.png')
+        plt.savefig('./temp/test.pdf')
+
         input_file.close()
 
 
