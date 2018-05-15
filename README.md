@@ -38,7 +38,7 @@ plt.savefig('./test.pdf')
 pip install cfutils
 ```
 
-### manipulate the soource code
+### manipulate the source code
 
 clone from github
 
