@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 """test for cfutils"""
 
 import os
@@ -25,13 +24,11 @@ class TestShowFunc(unittest.TestCase):
 
         import matplotlib.pyplot as plt
         fig, ax = plt.subplots(1, 1, figsize=(15, 6))
-        plot_chromatograph(
-            query_record,
-            ax,
-            xlim=[10, 30])
+        plot_chromatograph(query_record, ax, region=(10, 30))
         highlight_base(14, query_record, ax)
         os.makedirs('./temp', exist_ok=True)
         plt.savefig('./temp/test_plot.pdf')
+
 
 if __name__ == '__main__':
     unittest.main()
