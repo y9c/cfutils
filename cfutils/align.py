@@ -41,13 +41,15 @@ class MutObj(object):
                  ref_base,
                  cf_position,
                  cf_base,
-                 cf_qual=None):
+                 cf_qual=None,
+                 cf_orientation=None):
         """Constructor"""
         self.ref_position = ref_position
         self.ref_base = ref_base
         self.cf_position = cf_position
         self.cf_base = cf_base
         self.cf_qual = cf_qual
+        self.cf_orientation = cf_orientation
 
     def info(self):
         print(

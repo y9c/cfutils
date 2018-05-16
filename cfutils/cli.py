@@ -21,18 +21,22 @@ def cli(debug):
     prompt='SUBJECT (fasta file): ',
     help='Subject file in fasta format as ref')
 @click.option(
+    '--outdir', default=None, required=False, help="Output directory")
+@click.option(
+    '--outbase', default=None, required=False, help="Output basename")
+@click.option(
     '--plot/--no-plot',
     default=False,
-    help="Plot mutation location in chromatogram")
-def mut(query, subject, plot):
+    help="Generate figure of mutation in chromatogram ")
+def mut(query, subject, outdir, outbase, plot):
     """do mutation calling"""
     do_mutation_calling(
         query_ab1_file=query,
         subject_fasta_file=subject,
+        output_dir=outdir,
+        file_basename=outbase,
         report_mut_info=True,
-        report_mut_plot=plot,
-        mut_info_file="./temp/test.tsv",
-        mut_plot_file="./temp/test.pdf")
+        report_mut_plot=plot)
 
 
 @cli.command()

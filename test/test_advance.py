@@ -24,10 +24,10 @@ class TestFunc(unittest.TestCase):
         do_mutation_calling(
             query_ab1_file='./data/B5-M13R_B07.ab1',
             subject_fasta_file='./data/3kref.fa',
+            output_dir=None,
+            file_basename=None,
             report_mut_info=True,
-            report_mut_plot=True,
-            mut_info_file="./temp/test.tsv",
-            mut_plot_file="./temp/test.pdf")
+            report_mut_plot=True)
 
 
 if __name__ == '__main__':

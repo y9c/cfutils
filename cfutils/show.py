@@ -96,7 +96,7 @@ def plot_chromatograph(seq: SeqRecord, ax=None, region: Tuple = None) -> None:
         xmax=peaks[-1] + max(2, 0.02 * (peaks[-1] - peaks[0])))
     ax.set_yticklabels([])
     ax.set_xticks(peaks)
-    ax.set_xticklabels(list(range(region[0] - 2, region[0] + len(peaks) - 2)))
+    ax.set_xticklabels(list(range(region[0], region[0] + len(peaks))))
     ax.grid(False)
     ax.legend(loc='upper left', bbox_to_anchor=(0.93, 0.99))
 
