@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 from cfutils.align import align
 from cfutils.parser import parse_abi, parse_fasta
-from cfutils.show import highlight_base, plot_chromatograph
+from cfutils.show import plot_chromatograph, highlight_base, annotate_mutation
 
 
 def do_mutation_calling(query_ab1_file,
@@ -32,15 +32,11 @@ def do_mutation_calling(query_ab1_file,
                 f"{m.ref_position}\t{m.ref_base}\t{m.cf_position}\t{m.cf_base}\t{m.cf_qual}\n"
             )
 
-    # save pdf file
-    #  fig, ax = plt.subplots(3, -(-len(mutations) // 3), figsize=(15, 6))
-    # don't forget to use ax in form ax[1, 2]
     mutations = [m for m in mutations if m.cf_qual >= 50]
     if report_mut_plot:
         fig, ax = plt.subplots(
             len(mutations), figsize=(15, 5 * len(mutations)))
         flanking_size = 10
-        # bug mutation location in cf file out of range
         for i, mutation_info in enumerate(mutations):
             plot_chromatograph(
                 query_record,
@@ -48,4 +44,8 @@ def do_mutation_calling(query_ab1_file,
                 region=(mutation_info.cf_position - flanking_size,
                         mutation_info.cf_position + flanking_size))
             highlight_base(mutation_info.cf_position, query_record, ax[i])
+            annotate_mutation([
+                mutation_info.ref_position, mutation_info.ref_base,
+                mutation_info.cf_position, mutation_info.cf_base
+            ], query_record, ax[i])
         fig.savefig(mut_plot_file)

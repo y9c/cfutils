@@ -7,18 +7,12 @@ modified:   By Ye Chang in 2018-05-14
 '''
 
 import logging
-import sys
 from collections import defaultdict
-from typing import Dict, List, Tuple
+from typing import List, Tuple
 
 # Modules
 import matplotlib.pyplot as plt
 from Bio.SeqRecord import SeqRecord
-
-try:
-    assert sys.version_info > (3, 6)
-except AssertionError:
-    raise RuntimeError('cfutils requires Python 3.6+!')
 
 LOGGER: logging.Logger = logging.getLogger()
 HANDLER: logging.StreamHandler = logging.StreamHandler()
@@ -107,7 +101,7 @@ def plot_chromatograph(seq: SeqRecord, ax=None, region: Tuple = None) -> None:
     ax.legend(loc='upper left', bbox_to_anchor=(0.93, 0.99))
 
 
-def highlight_base(pos_highlight: int, seq: SeqRecord, ax) -> Dict:
+def highlight_base(pos_highlight: int, seq: SeqRecord, ax) -> Tuple:
     '''Highlight the area around a peak with a rectangle'''
 
     peaks = seq.annotations['peak positions']
@@ -136,4 +130,20 @@ def highlight_base(pos_highlight: int, seq: SeqRecord, ax) -> Dict:
         facecolor='yellow',
         alpha=0.3)
     ax.add_patch(rec)
-    return 1
+    return (xmin, xmax)
+
+
+def annotate_mutation(mut: List, seq: SeqRecord, ax) -> None:
+    """Annotate mutation pattern chromatograph position.
+    mut: List[ref_position, ref_base, cf_position, cf_base]
+    """
+    peaks = seq.annotations['peak positions']
+    peak = peaks[mut[2] - 1]
+    ax.text(
+        peak,
+        0.95,
+        f"{mut[1]}{mut[0]}{mut[3]}",
+        color="c",
+        fontsize='x-large',
+        fontweight='bold',
+        horizontalalignment='center')
