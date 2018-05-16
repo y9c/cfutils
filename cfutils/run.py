@@ -19,7 +19,7 @@ def do_mutation_calling(query_ab1_file,
     """Test plot mutation region"""
     os.makedirs('./temp', exist_ok=True)
 
-    query_record = parse_abi(query_ab1_file, trim=False)
+    query_record = parse_abi(query_ab1_file)
     subject_record = parse_fasta(subject_fasta_file)
     mutations = align(query_record, subject_record, ignore_ambig=True)
     # save tsv file

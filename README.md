@@ -86,3 +86,4 @@ import cfutils as cf
 - [ ] fix bug that chromatogram switch pos after trim
 - [x] wrap as a cli app
 - [ ] return quality score in output
+- [ ] fix issue that selected base is not in the middle

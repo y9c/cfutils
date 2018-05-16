@@ -20,7 +20,7 @@ class TestFunc(unittest.TestCase):
 
     def test_plot_mutation(self):
         """Test plot mutation region"""
-        query_record = parse_abi('./data/B5-M13R_B07.ab1', trim=True)
+        query_record = parse_abi('./data/B5-M13R_B07.ab1')
         subject_record = parse_fasta('./data/3kref.fa')
 
         mutations = align(query_record, subject_record, ignore_ambig=True)

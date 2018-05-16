@@ -13,14 +13,11 @@ http://www.appliedbiosystem.com/support/software_community/ABIF_File_Format.pdf
 
 """
 
-__docformat__ = "epytext en"
-
 import datetime
 import struct
 from os.path import basename
 
 from Bio import Alphabet, SeqIO
-from Bio._py3k import _as_bytes, _bytes_to_string
 from Bio.Alphabet.IUPAC import ambiguous_dna, unambiguous_dna
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
@@ -85,7 +82,7 @@ _HEADFMT = '>H4sI2H3I'
 _DIRFMT = '>4sI2H4I'
 
 
-def abi_iterator(handle, alphabet=None, trim=False):
+def abi_iterator(handle, alphabet=None):
     """Iterator for the Abi file format.
     """
     # raise exception is alphabet is not dna
@@ -110,7 +107,7 @@ def abi_iterator(handle, alphabet=None, trim=False):
     if not marker:
         # handle empty file gracefully
         raise StopIteration
-    if marker != _as_bytes('ABIF'):
+    if marker != b'ABIF':
         raise IOError('File should start ABIF, not %r' % marker)
 
     # dirty hack for handling time information
@@ -187,16 +184,8 @@ def abi_iterator(handle, alphabet=None, trim=False):
         annotations=annot,
         letter_annotations={'phred_quality': qual})
 
-    if not trim:
-        yield record
-    else:
-        yield _abi_trim(record)
-
-
-def _AbiTrimIterator(handle):
-    """Iterator for the Abi file format that yields trimmed SeqRecord objects.
-    """
-    return abi_iterator(handle, trim=True)
+    #  yield _abi_trim(record)
+    yield record
 
 
 def _abi_parse_header(header, handle):
@@ -220,10 +209,10 @@ def _abi_parse_header(header, handle):
             struct.calcsize(_DIRFMT))) + (start, )
         index += 1
         # only parse desired dirs
-        key = _bytes_to_string(dir_entry[0])
+        key = dir_entry[0].decode()
         key += str(dir_entry[1])
         if key in list(_EXTRACT.keys()) + _SPCTAGS:
-            tag_name = _bytes_to_string(dir_entry[0])
+            tag_name = dir_entry[0].decode()
             tag_number = dir_entry[1]
             elem_code = dir_entry[2]
             elem_num = dir_entry[4]
@@ -240,7 +229,7 @@ def _abi_parse_header(header, handle):
                 _parse_tag_data(elem_code, elem_num, data)
 
 
-def _abi_trim(seq_record):
+def _abi_trim(seq_record: SeqRecord) -> SeqRecord:
     """Trims the sequence using Richard Mott's modified trimming algorithm.
 
     seq_record - SeqRecord object to be trimmed.
@@ -318,7 +307,7 @@ def _parse_tag_data(elem_code, elem_num, raw_data):
 
         # account for different data types
         if elem_code == 2:
-            return _bytes_to_string(data)
+            return data.decode()
         elif elem_code == 10:
             return str(datetime.date(*data))
         elif elem_code == 11:
@@ -326,9 +315,9 @@ def _parse_tag_data(elem_code, elem_num, raw_data):
         elif elem_code == 13:
             return bool(data)
         elif elem_code == 18:
-            return _bytes_to_string(data[1:])
+            return data[1:].decode()
         elif elem_code == 19:
-            return _bytes_to_string(data[:-1])
+            return data[:-1].decode()
         else:
             return data
     else:
@@ -353,20 +342,34 @@ def trim_and_rescale_trace(seq):
     for (i, trace) in enumerate(traces, 1):
         seq.annotations['channel ' + str(i)] = trace
     seq.annotations['trace_x'] = x
+    return seq
 
 
-def parse_abi(filename, trim=True):
+def rescale_trace(seq: SeqRecord) -> SeqRecord:
+    traces = [seq.annotations['channel ' + str(i)] for i in range(1, 5)]
+    peaks = seq.annotations['peak positions']
+    n = len(peaks)
+    step = 1.0 * (peaks[-1] - peaks[0]) / n
+    traces = [[t for (i, t) in enumerate(trace) if peaks[0] <= i < peaks[-1]]
+              for trace in traces]
+    #  peaks = [(p - peaks[0]) / step for p in peaks]
+    peaks = [p / step for p in peaks]
+
+    x = [1.0 * i / step for i in range(len(traces[0]))]
+
+    seq.annotations['peak positions'] = peaks
+    for (i, trace) in enumerate(traces, 1):
+        seq.annotations['channel ' + str(i)] = trace
+    seq.annotations['trace_x'] = x
+    return seq
+
+
+def parse_abi(filename: str) -> SeqRecord:
     '''Parse an ABI file from Sanger sequencing'''
-    try:
-        with open(filename, 'rb') as abifile:
-            seq = list(abi_iterator(abifile, trim=trim))[0]
-    except TypeError:
-        abifile = filename
-        # will cause weird bug if set trim as true
-        #  seq = list(abi_iterator(abifile, trim=trim))[0]
-        seq = list(abi_iterator(abifile, trim=False))[0]
+    with open(filename, 'rb') as abifile:
+        seq = list(abi_iterator(abifile))[0]
 
-    trim_and_rescale_trace(seq)
+    seq = rescale_trace(seq)
     return seq
 
 

@@ -10,6 +10,9 @@ modified:   By Ye Chang in 2018-05-14
 import logging
 import sys
 from collections import defaultdict
+from typing import List, Dict
+
+from Bio.SeqRecord import SeqRecord
 
 try:
     assert sys.version_info > (3, 6)
@@ -26,7 +29,7 @@ LOGGER.setLevel(logging.DEBUG)
 # LOGGER.setLevel(logging.INFO)
 
 # Globals
-BASES = ['A', 'C', 'G', 'T']
+BASES: List[str] = ['A', 'C', 'G', 'T']
 COLORS = defaultdict(lambda: 'purple', {
     'A': 'g',
     'C': 'b',
@@ -36,7 +39,8 @@ COLORS = defaultdict(lambda: 'purple', {
 
 
 # Functions
-def plot_chromatograph(seq, ax=None, xlim=None, peaklim=None):
+def plot_chromatograph(seq: SeqRecord, ax=None, xlim=None,
+                       peaklim=None) -> None:
     '''Plot Sanger chromatograph'''
 
     if ax is None:
@@ -83,7 +87,7 @@ def plot_chromatograph(seq, ax=None, xlim=None, peaklim=None):
     # Plot bases at peak positions
     LOGGER.debug(seq)
     for i, peak in enumerate(peaks):
-        LOGGER.debug("%i, %f, [%i, %i]", i, peak, xlim[0], xlim[1])
+        LOGGER.debug("%i, %f, %s, %i", i, peak, seq[i], xlim[0] + i)
         ax.text(
             peak,
             -0.11,
@@ -97,12 +101,12 @@ def plot_chromatograph(seq, ax=None, xlim=None, peaklim=None):
         xmax=peaks[-1] + max(2, 0.02 * (peaks[-1] - peaks[0])))
     ax.set_yticklabels([])
     ax.set_xticks(peaks)
-    ax.set_xticklabels(list(range(xlim[0], xlim[0] + len(peaks))))
+    ax.set_xticklabels(list(range(xlim[0] - 2, xlim[0] + len(peaks) - 2)))
     ax.grid(False)
     ax.legend(loc='upper left', bbox_to_anchor=(0.93, 0.99))
 
 
-def closest_peak(pos_highlight, seq):
+def closest_peak(pos_highlight: int, seq: SeqRecord) -> Dict:
     peaks = seq.annotations['peak positions']
     (i, peak) = min(
         enumerate(peaks), key=lambda x: abs(x[0] + 1 - pos_highlight))
