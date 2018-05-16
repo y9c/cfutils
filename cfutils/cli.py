@@ -20,9 +20,19 @@ def cli(debug):
     '--subject',
     prompt='SUBJECT (fasta file): ',
     help='Subject file in fasta format as ref')
-def mut(query, subject):
+@click.option(
+    '--plot/--no-plot',
+    default=False,
+    help="Plot mutation location in chromatogram")
+def mut(query, subject, plot):
     """do mutation calling"""
-    do_mutation_calling(query, subject)
+    do_mutation_calling(
+        query_ab1_file=query,
+        subject_fasta_file=subject,
+        report_mut_info=True,
+        report_mut_plot=plot,
+        mut_info_file="./temp/test.tsv",
+        mut_plot_file="./temp/test.pdf")
 
 
 @cli.command()
