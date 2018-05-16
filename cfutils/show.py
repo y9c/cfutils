@@ -6,12 +6,13 @@ content:    Plot functions for Sanger chromatographs.
 modified:   By Ye Chang in 2018-05-14
 '''
 
-# Modules
 import logging
 import sys
 from collections import defaultdict
-from typing import List, Dict
+from typing import Dict, List, Tuple
 
+# Modules
+import matplotlib.pyplot as plt
 from Bio.SeqRecord import SeqRecord
 
 try:
@@ -39,13 +40,14 @@ COLORS = defaultdict(lambda: 'purple', {
 
 
 # Functions
-def plot_chromatograph(seq: SeqRecord, ax=None, xlim=None,
-                       peaklim=None) -> None:
-    '''Plot Sanger chromatograph'''
+def plot_chromatograph(seq: SeqRecord, ax=None, region: Tuple = None) -> None:
+    """
+    Plot Sanger chromatograph
+
+    region: include both start and end
+    """
 
     if ax is None:
-        import matplotlib.pyplot as plt
-        plt.ion()
         fig, ax = plt.subplots(1, 1, figsize=(16, 6))
 
     if seq is None:
@@ -60,10 +62,9 @@ def plot_chromatograph(seq: SeqRecord, ax=None, xlim=None,
     x = seq.annotations['trace_x']
 
     # Limit to a region if necessary
-    if (xlim is not None) or (peaklim is not None):
-        if peaklim is not None:
-            xlim = (peaks[min(len(peaks) - 1, peaklim[0])], peaks[min(
-                len(peaks) - 1, peaklim[1] - 1)])
+    if region is not None:
+        xlim = (peaks[min(len(peaks), region[0]) - 1],
+                peaks[min(len(peaks), region[1]) - 1])
         ind = [(xi >= xlim[0]) and (xi <= xlim[1]) for xi in x]
         if not any(ind):
             return
@@ -101,45 +102,30 @@ def plot_chromatograph(seq: SeqRecord, ax=None, xlim=None,
         xmax=peaks[-1] + max(2, 0.02 * (peaks[-1] - peaks[0])))
     ax.set_yticklabels([])
     ax.set_xticks(peaks)
-    ax.set_xticklabels(list(range(xlim[0] - 2, xlim[0] + len(peaks) - 2)))
+    ax.set_xticklabels(list(range(region[0] - 2, region[0] + len(peaks) - 2)))
     ax.grid(False)
     ax.legend(loc='upper left', bbox_to_anchor=(0.93, 0.99))
 
 
-def closest_peak(pos_highlight: int, seq: SeqRecord) -> Dict:
-    peaks = seq.annotations['peak positions']
-    (i, peak) = min(
-        enumerate(peaks), key=lambda x: abs(x[0] + 1 - pos_highlight))
-    return {'index': i, 'peak': peak}
-
-
-def peak_position(i, seq):
-    return seq.annotations['peak positions'][i]
-
-
-def highlight_base(pos_highlight, seq, ax):
+def highlight_base(pos_highlight: int, seq: SeqRecord, ax) -> Dict:
     '''Highlight the area around a peak with a rectangle'''
 
-    #  trace = seq.annotations['channel 1']
     peaks = seq.annotations['peak positions']
-
-    peak_obj = closest_peak(pos_highlight, seq)
-    i = peak_obj['index']
-    peak = peak_obj['peak']
+    peak = peaks[pos_highlight - 1]
 
     xmin, xmax = ax.get_xlim()
     if not xmin <= peak < xmax:
         raise ValueError('peak not within plot bounds')
 
-    if i == 0:
+    if pos_highlight == 1:
         xmin = -0.5
     else:
-        xmin = 0.5 * (peaks[i - 1] + peak)
+        xmin = 0.5 * (peaks[pos_highlight - 1] + peaks[pos_highlight - 2])
 
-    if i == len(peaks) - 1:
-        xmax = peak + 0.5
+    if pos_highlight == len(peaks):
+        xmax = -0.5
     else:
-        xmax = 0.5 * (peak + peaks[i + 1])
+        xmax = 0.5 * (peaks[pos_highlight - 1] + peaks[pos_highlight])
 
     ymin, ymax = ax.get_ylim()
 
@@ -150,4 +136,4 @@ def highlight_base(pos_highlight, seq, ax):
         facecolor='yellow',
         alpha=0.3)
     ax.add_patch(rec)
-    return {'index': i, 'peak': peak, 'rec': rec}
+    return 1

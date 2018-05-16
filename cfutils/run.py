@@ -45,9 +45,7 @@ def do_mutation_calling(query_ab1_file,
             plot_chromatograph(
                 query_record,
                 ax[i],
-                xlim=[
-                    mutation_info.cf_position - flanking_size,
-                    mutation_info.cf_position + flanking_size
-                ])
+                region=(mutation_info.cf_position - flanking_size,
+                        mutation_info.cf_position + flanking_size))
             highlight_base(mutation_info.cf_position, query_record, ax[i])
         fig.savefig(mut_plot_file)

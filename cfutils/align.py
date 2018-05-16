@@ -5,15 +5,15 @@ align two sequence with ref by blast
 
 import logging
 import sys
+import tempfile
 from io import StringIO
 from subprocess import PIPE, STDOUT, Popen
-from typing import List, Union, Tuple
-import tempfile
+from typing import List, Tuple, Union
 
 from Bio.Alphabet.IUPAC import IUPACUnambiguousDNA, ambiguous_dna
 from Bio.Blast import NCBIXML
-from Bio.Blast.Record import Alignment, HSP
 from Bio.Blast.Applications import NcbiblastnCommandline as blast
+from Bio.Blast.Record import HSP, Alignment
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
@@ -48,6 +48,11 @@ class MutObj(object):
         self.cf_position = cf_position
         self.cf_base = cf_base
         self.cf_qual = cf_qual
+
+    def info(self):
+        print(
+            f"The Position in Reference: {self.ref_position}\nThe Original Base in Reference: {self.ref_base}\nThe Position in Chromatogram file: {self.cf_position}\nThe Mutation Base in Chromatogram file: {self.cf_base}\n"
+        )
 
 
 # basic fuctions
