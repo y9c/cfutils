@@ -12,6 +12,7 @@ import tempfile
 
 from Bio.Alphabet.IUPAC import IUPACUnambiguousDNA, ambiguous_dna
 from Bio.Blast import NCBIXML
+from Bio.Blast.Record import Alignment, HSP
 from Bio.Blast.Applications import NcbiblastnCommandline as blast
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
@@ -32,6 +33,23 @@ LOGGER.setLevel(logging.DEBUG)
 #  LOGGER.setLevel(logging.INFO)
 
 
+class MutObj(object):
+    """Mutaion object"""
+
+    def __init__(self,
+                 ref_position,
+                 ref_base,
+                 cf_position,
+                 cf_base,
+                 cf_qual=None):
+        """Constructor"""
+        self.ref_position = ref_position
+        self.ref_base = ref_base
+        self.cf_position = cf_position
+        self.cf_base = cf_base
+        self.cf_qual = cf_qual
+
+
 # basic fuctions
 def is_ambig(base):
     """
@@ -48,7 +66,9 @@ def rc_seq(seq):
 
 
 # functions for align
-def run_blast(query_record: SeqRecord, subject_record: SeqRecord, ignore_ambig: bool=False) -> Tuple[List, int]:
+def run_blast(query_record: SeqRecord,
+              subject_record: SeqRecord,
+              ignore_ambig: bool = False) -> Tuple[List, int]:
     with tempfile.NamedTemporaryFile(
     ) as query_file, tempfile.NamedTemporaryFile() as subject_file:
         query_file.write(query_record.format('fasta').encode())
@@ -82,7 +102,7 @@ def parse_blast(output, ignore_ambig=False):
     blast_output = StringIO(output.decode())
 
     try:
-        blast_records = NCBIXML.read(blast_output)
+        blast_records: Alignment = NCBIXML.read(blast_output)
     except ValueError as e:
         LOGGER.info("-----Blast output------")
         LOGGER.info(blast_output.getvalue())
@@ -97,17 +117,19 @@ def parse_blast(output, ignore_ambig=False):
 
     try:
         alignment = blast_records.alignments[0]
+        print(type(alignment))
+        print(type(alignment.hsps[0]))
     except:
         return (output, -1)
 
-    hsp = alignment.hsps[0]
+    hsp: HSP = alignment.hsps[0]
 
     mutations = get_muts(hsp, ignore_ambig=ignore_ambig)
 
     return (mutations, 1)
 
 
-def get_muts(hsp, ignore_ambig=False) -> List[List[Union[int, str]]]:
+def get_muts(hsp: HSP, ignore_ambig: bool = False) -> List[MutObj]:
     """get_muts
 
     :param hsp:
@@ -125,7 +147,7 @@ def get_muts(hsp, ignore_ambig=False) -> List[List[Union[int, str]]]:
                 mutation_symbol = f"RefLocation: {sbjct_loc}\tRefBase: {s}\tCfLocation: {query_loc}\tMutBase: {q}"
                 LOGGER.info(mutation_symbol)
             elif q != s:
-                mutations.append([sbjct_loc, s, query_loc, q])
+                mutations.append(MutObj(sbjct_loc, s, query_loc, q))
             if s != "-":
                 sbjct_loc += 1
             if q != "-":
@@ -140,7 +162,7 @@ def get_muts(hsp, ignore_ambig=False) -> List[List[Union[int, str]]]:
                 mutation_symbol = f"RefLocation: {sbjct_loc}\tRefBase: {s}\tCfLocation: {query_loc}\tMutBase: {q}"
                 LOGGER.info(mutation_symbol)
             elif q != s:
-                mutations.append([sbjct_loc, s, query_loc, q])
+                mutations.append(MutObj(sbjct_loc, s, query_loc, q))
             if s != "-":
                 sbjct_loc += 1
             if q != "-":
@@ -148,25 +170,32 @@ def get_muts(hsp, ignore_ambig=False) -> List[List[Union[int, str]]]:
     return mutations
 
 
+def get_local_quality(pos: int, query_record: SeqRecord,
+                      flank_base_num=0) -> List:
+    """get_local_quality
+
+    change flank_base_num to number gt 0 to get mean qual within region
+    """
+    qual = query_record.letter_annotations['phred_quality']
+    qual_flank = qual[max(0, pos - 1 - flank_base_num):min(
+        len(qual), pos + flank_base_num)]
+    qual_flank_mean = sum(qual_flank) / len(qual_flank)
+    return qual_flank_mean
+
+
 def align(query_record: SeqRecord,
           subject_record: SeqRecord,
           ignore_ambig=False) -> List[List[Union[int, str]]]:
-    """align
-
-    :param query_record:
-    :type query_record: SeqRecord
-    :param subject_record:
-    :type subject_record: SeqRecord
-    :param ignore_ambig:
-    :rtype: List[List[Union[int, str]]]
-    """
+    """align"""
     mutations, _ = run_blast(
         query_record, subject_record, ignore_ambig=ignore_ambig)
 
     LOGGER.info("%s: Total mutations: %s" % (query_record.description,
                                              len(mutations)))
     for m in mutations:
-        m = "\t".join([str(i) for i in m])
-        LOGGER.info("%s", m)
+        m.cf_qual = get_local_quality(
+            m.cf_position, query_record, flank_base_num=5)
+        m_tag = f"{m.ref_position}\t{m.ref_base}\t{m.cf_position}\t{m.cf_base}"
+        LOGGER.info("%s", m_tag)
 
     return mutations
