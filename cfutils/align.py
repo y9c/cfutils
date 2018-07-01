@@ -20,12 +20,13 @@ from Bio.SeqRecord import SeqRecord
 try:
     assert sys.version_info > (3, 6)
 except AssertionError:
-    raise RuntimeError('cfutils requires Python 3.6+!')
+    raise RuntimeError("cfutils requires Python 3.6+!")
 
 LOGGER: logging.Logger = logging.getLogger()
 HANDLER: logging.StreamHandler = logging.StreamHandler()
 FORMATTER: logging.Formatter = logging.Formatter(
-    '%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
+    "%(asctime)s %(name)-12s %(levelname)-8s %(message)s"
+)
 HANDLER.setFormatter(FORMATTER)
 LOGGER.addHandler(HANDLER)
 LOGGER.setLevel(logging.DEBUG)
@@ -36,13 +37,15 @@ LOGGER.setLevel(logging.DEBUG)
 class MutObj(object):
     """Mutaion object"""
 
-    def __init__(self,
-                 ref_position,
-                 ref_base,
-                 cf_position,
-                 cf_base,
-                 cf_qual=None,
-                 cf_orientation=None):
+    def __init__(
+        self,
+        ref_position,
+        ref_base,
+        cf_position,
+        cf_base,
+        cf_qual=None,
+        cf_orientation=None,
+    ):
         """Constructor"""
         self.ref_position = ref_position
         self.ref_base = ref_base
@@ -73,25 +76,27 @@ def rc_seq(seq):
 
 
 # functions for align
-def run_blast(query_record: SeqRecord,
-              subject_record: SeqRecord,
-              ignore_ambig: bool = False) -> Tuple[List, int]:
-    with tempfile.NamedTemporaryFile(
-    ) as query_file, tempfile.NamedTemporaryFile() as subject_file:
-        query_file.write(query_record.format('fasta').encode())
+def run_blast(
+    query_record: SeqRecord,
+    subject_record: SeqRecord,
+    ignore_ambig: bool = False,
+) -> Tuple[List, int]:
+    with tempfile.NamedTemporaryFile() as query_file, tempfile.NamedTemporaryFile() as subject_file:
+        query_file.write(query_record.format("fasta").encode())
         query_file.seek(0)
-        subject_file.write(subject_record.format('fasta').encode())
+        subject_file.write(subject_record.format("fasta").encode())
         subject_file.seek(0)
 
         cline = blast(
-            cmd='blastn',
+            cmd="blastn",
             query=query_file.name,
             subject=subject_file.name,
             gapopen=5,
             gapextend=2,
             reward=3,
             penalty=-4,
-            outfmt=5)
+            outfmt=5,
+        )
         try:
             p = Popen(str(cline).split(), stdout=PIPE, stderr=STDOUT)
         except OSError:
@@ -113,13 +118,16 @@ def parse_blast(output, ignore_ambig=False):
     except ValueError as e:
         LOGGER.info("-----Blast output------")
         LOGGER.info(blast_output.getvalue())
-        if blast_output.getvalue(
-        ) == "BLAST engine error: XML formatting is only supported for a database search":
+        if (
+            blast_output.getvalue()
+            == "BLAST engine error: XML formatting is only supported for a database search"
+        ):
             LOGGER.warning(
                 "Please ensure that you are using the latest blastx version of blastn"
             )
             LOGGER.warning(
-                "You may need to update your environment's PATH variable")
+                "You may need to update your environment's PATH variable"
+            )
         raise e
 
     try:
@@ -177,31 +185,36 @@ def get_muts(hsp: HSP, ignore_ambig: bool = False) -> List[MutObj]:
     return mutations
 
 
-def get_local_quality(pos: int, query_record: SeqRecord,
-                      flank_base_num=0) -> List:
+def get_local_quality(
+    pos: int, query_record: SeqRecord, flank_base_num=0
+) -> List:
     """get_local_quality
 
     change flank_base_num to number gt 0 to get mean qual within region
     """
-    qual = query_record.letter_annotations['phred_quality']
-    qual_flank = qual[max(0, pos - 1 - flank_base_num):min(
-        len(qual), pos + flank_base_num)]
+    qual = query_record.letter_annotations["phred_quality"]
+    qual_flank = qual[
+        max(0, pos - 1 - flank_base_num):min(len(qual), pos + flank_base_num)
+    ]
     qual_flank_mean = sum(qual_flank) / len(qual_flank)
     return qual_flank_mean
 
 
-def align(query_record: SeqRecord,
-          subject_record: SeqRecord,
-          ignore_ambig=False) -> List[List[Union[int, str]]]:
+def align(
+    query_record: SeqRecord, subject_record: SeqRecord, ignore_ambig=False
+) -> List[List[Union[int, str]]]:
     """align"""
     mutations, _ = run_blast(
-        query_record, subject_record, ignore_ambig=ignore_ambig)
+        query_record, subject_record, ignore_ambig=ignore_ambig
+    )
 
-    LOGGER.info("%s: Total mutations: %s" % (query_record.description,
-                                             len(mutations)))
+    LOGGER.info(
+        "%s: Total mutations: %s" % (query_record.description, len(mutations))
+    )
     for m in mutations:
         m.cf_qual = get_local_quality(
-            m.cf_position, query_record, flank_base_num=5)
+            m.cf_position, query_record, flank_base_num=5
+        )
         m_tag = f"{m.ref_position}\t{m.ref_base}\t{m.cf_position}\t{m.cf_base}"
         LOGGER.info("%s", m_tag)
 

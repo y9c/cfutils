@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-'''
+"""
 author:     Fabio Zanini
 date:       09/12/13
 content:    Plot functions for Sanger chromatographs.
 modified:   By Ye Chang in 2018-05-14
-'''
+"""
 
 import logging
 from collections import defaultdict
@@ -17,20 +17,18 @@ from Bio.SeqRecord import SeqRecord
 LOGGER: logging.Logger = logging.getLogger()
 HANDLER: logging.StreamHandler = logging.StreamHandler()
 FORMATTER: logging.Formatter = logging.Formatter(
-    '%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
+    "%(asctime)s %(name)-12s %(levelname)-8s %(message)s"
+)
 HANDLER.setFormatter(FORMATTER)
 LOGGER.addHandler(HANDLER)
 LOGGER.setLevel(logging.DEBUG)
 # LOGGER.setLevel(logging.INFO)
 
 # Globals
-BASES: List[str] = ['A', 'C', 'G', 'T']
-COLORS = defaultdict(lambda: 'purple', {
-    'A': 'g',
-    'C': 'b',
-    'G': 'k',
-    'T': 'r'
-})
+BASES: List[str] = ["A", "C", "G", "T"]
+COLORS = defaultdict(
+    lambda: "purple", {"A": "g", "C": "b", "G": "k", "T": "r"}
+)
 
 
 # Functions
@@ -50,15 +48,17 @@ def plot_chromatograph(seq: SeqRecord, ax=None, region: Tuple = None) -> None:
         return
 
     # Get signals
-    traces = [seq.annotations['channel ' + str(i)] for i in range(1, 5)]
-    peaks = seq.annotations['peak positions']
-    BASES = seq.annotations['channels']
-    x = seq.annotations['trace_x']
+    traces = [seq.annotations["channel " + str(i)] for i in range(1, 5)]
+    peaks = seq.annotations["peak positions"]
+    BASES = seq.annotations["channels"]
+    x = seq.annotations["trace_x"]
 
     # Limit to a region if necessary
     if region is not None:
-        xlim = (peaks[min(len(peaks), region[0]) - 1],
-                peaks[min(len(peaks), region[1]) - 1])
+        xlim = (
+            peaks[min(len(peaks), region[0]) - 1],
+            peaks[min(len(peaks), region[1]) - 1],
+        )
         ind = [(xi >= xlim[0]) and (xi <= xlim[1]) for xi in x]
         if not any(ind):
             return
@@ -66,7 +66,8 @@ def plot_chromatograph(seq: SeqRecord, ax=None, region: Tuple = None) -> None:
         x = [xi for (indi, xi) in zip(ind, x) if indi]
         traces = [[ci for (indi, ci) in zip(ind, tr) if indi] for tr in traces]
         ind = [
-            i for (i, ti) in enumerate(peaks)
+            i
+            for (i, ti) in enumerate(peaks)
             if (ti >= xlim[0]) and (ti <= xlim[1])
         ]
         peaks = peaks[ind[0]:ind[-1] + 1]
@@ -88,28 +89,30 @@ def plot_chromatograph(seq: SeqRecord, ax=None, region: Tuple = None) -> None:
             -0.11,
             seq[i],
             color=COLORS[seq[i]],
-            horizontalalignment='center')
+            horizontalalignment="center",
+        )
 
     ax.set_ylim(ymin=-0.15, ymax=1.05)
     ax.set_xlim(
         xmin=peaks[0] - max(2, 0.02 * (peaks[-1] - peaks[0])),
-        xmax=peaks[-1] + max(2, 0.02 * (peaks[-1] - peaks[0])))
+        xmax=peaks[-1] + max(2, 0.02 * (peaks[-1] - peaks[0])),
+    )
     ax.set_yticklabels([])
     ax.set_xticks(peaks)
     ax.set_xticklabels(list(range(region[0], region[0] + len(peaks))))
     ax.grid(False)
-    ax.legend(loc='upper left', bbox_to_anchor=(0.93, 0.99))
+    ax.legend(loc="upper left", bbox_to_anchor=(0.93, 0.99))
 
 
 def highlight_base(pos_highlight: int, seq: SeqRecord, ax) -> Tuple:
-    '''Highlight the area around a peak with a rectangle'''
+    """Highlight the area around a peak with a rectangle"""
 
-    peaks = seq.annotations['peak positions']
+    peaks = seq.annotations["peak positions"]
     peak = peaks[pos_highlight - 1]
 
     xmin, xmax = ax.get_xlim()
     if not xmin <= peak < xmax:
-        raise ValueError('peak not within plot bounds')
+        raise ValueError("peak not within plot bounds")
 
     if pos_highlight == 1:
         xmin = -0.5
@@ -124,11 +127,15 @@ def highlight_base(pos_highlight: int, seq: SeqRecord, ax) -> Tuple:
     ymin, ymax = ax.get_ylim()
 
     from matplotlib.patches import Rectangle
+
     rec = Rectangle(
-        (xmin, ymin), (xmax - xmin), (ymax - ymin),
-        edgecolor='none',
-        facecolor='yellow',
-        alpha=0.3)
+        (xmin, ymin),
+        (xmax - xmin),
+        (ymax - ymin),
+        edgecolor="none",
+        facecolor="yellow",
+        alpha=0.3,
+    )
     ax.add_patch(rec)
     return (xmin, xmax)
 
@@ -137,13 +144,14 @@ def annotate_mutation(mut: List, seq: SeqRecord, ax) -> None:
     """Annotate mutation pattern chromatograph position.
     mut: List[ref_position, ref_base, cf_position, cf_base]
     """
-    peaks = seq.annotations['peak positions']
+    peaks = seq.annotations["peak positions"]
     peak = peaks[mut[2] - 1]
     ax.text(
         peak,
         0.95,
         f"{mut[1]}{mut[0]}{mut[3]}",
         color="c",
-        fontsize='x-large',
-        fontweight='bold',
-        horizontalalignment='center')
+        fontsize="x-large",
+        fontweight="bold",
+        horizontalalignment="center",
+    )

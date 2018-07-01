@@ -7,14 +7,15 @@ name = "pypi"
 biopython = "*"
 matplotlib = "*"
 click = "*"
+black = "*"
 
 [dev-packages]
 neovim = "*"
-yapf = "*"
 pylint = "*"
 twine = "*"
 setuptools = "*"
 python-language-server = "*"
+black = "*"
 
 [requires]
 python_version = "3.6"

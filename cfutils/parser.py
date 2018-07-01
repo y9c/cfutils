@@ -27,59 +27,59 @@ from Bio.SeqRecord import SeqRecord
 # if a tag entry needs to be added, just add its key and its key
 # for the annotations dictionary as the value
 _EXTRACT = {
-    'TUBE1': 'sample_well',
-    'DySN1': 'dye',
-    'GTyp1': 'polymer',
-    'MODL1': 'machine_model',
+    "TUBE1": "sample_well",
+    "DySN1": "dye",
+    "GTyp1": "polymer",
+    "MODL1": "machine_model",
 }
 # dictionary for tags that require preprocessing before use in creating
 # seqrecords
 _SPCTAGS = [
-    'PBAS2',  # base-called sequence
-    'PCON2',  # quality values of base-called sequence
-    'SMPL1',  # sample id inputted before sequencing run
-    'RUND1',  # run start date
-    'RUND2',  # run finish date
-    'RUNT1',  # run start time
-    'RUNT2',  # run finish time
+    "PBAS2",  # base-called sequence
+    "PCON2",  # quality values of base-called sequence
+    "SMPL1",  # sample id inputted before sequencing run
+    "RUND1",  # run start date
+    "RUND2",  # run finish date
+    "RUNT1",  # run start time
+    "RUNT2",  # run finish time
     # NOTE: The following are used for trace data
-    'PLOC2',  # position of peaks
-    'DATA1',  # channel1 raw data
-    'DATA2',  # channel2 raw data
-    'DATA3',  # channel3 raw data
-    'DATA4',  # channel4 raw data
-    'DATA9',  # channel1 analyzed data
-    'DATA10',  # channel2 analyzed data
-    'DATA11',  # channel3 analyzed data
-    'DATA12',  # channel4 analyzed data
-    'FWO_1',  # base order for channels
+    "PLOC2",  # position of peaks
+    "DATA1",  # channel1 raw data
+    "DATA2",  # channel2 raw data
+    "DATA3",  # channel3 raw data
+    "DATA4",  # channel4 raw data
+    "DATA9",  # channel1 analyzed data
+    "DATA10",  # channel2 analyzed data
+    "DATA11",  # channel3 analyzed data
+    "DATA12",  # channel4 analyzed data
+    "FWO_1",  # base order for channels
 ]
 # dictionary for data unpacking format
 _BYTEFMT = {
-    1: 'b',  # byte
-    2: 's',  # char
-    3: 'H',  # word
-    4: 'h',  # short
-    5: 'i',  # long
-    6: '2i',  # rational, legacy unsupported
-    7: 'f',  # float
-    8: 'd',  # double
-    10: 'h2B',  # date
-    11: '4B',  # time
-    12: '2i2b',  # thumb
-    13: 'B',  # bool
-    14: '2h',  # point, legacy unsupported
-    15: '4h',  # rect, legacy unsupported
-    16: '2i',  # vPoint, legacy unsupported
-    17: '4i',  # vRect, legacy unsupported
-    18: 's',  # pString
-    19: 's',  # cString
-    20: '2i',  # tag, legacy unsupported
+    1: "b",  # byte
+    2: "s",  # char
+    3: "H",  # word
+    4: "h",  # short
+    5: "i",  # long
+    6: "2i",  # rational, legacy unsupported
+    7: "f",  # float
+    8: "d",  # double
+    10: "h2B",  # date
+    11: "4B",  # time
+    12: "2i2b",  # thumb
+    13: "B",  # bool
+    14: "2h",  # point, legacy unsupported
+    15: "4h",  # rect, legacy unsupported
+    16: "2i",  # vPoint, legacy unsupported
+    17: "4i",  # vRect, legacy unsupported
+    18: "s",  # pString
+    19: "s",  # cString
+    20: "2i",  # tag, legacy unsupported
 }
 # header data structure (exluding 4 byte ABIF marker)
-_HEADFMT = '>H4sI2H3I'
+_HEADFMT = ">H4sI2H3I"
 # directory data structure
-_DIRFMT = '>4sI2H4I'
+_DIRFMT = ">4sI2H4I"
 
 
 def abi_iterator(handle, alphabet=None):
@@ -88,17 +88,19 @@ def abi_iterator(handle, alphabet=None):
     # raise exception is alphabet is not dna
     if alphabet is not None:
         if isinstance(
-                Alphabet._get_base_alphabet(alphabet),
-                Alphabet.ProteinAlphabet):
+            Alphabet._get_base_alphabet(alphabet), Alphabet.ProteinAlphabet
+        ):
             raise ValueError(
-                "Invalid alphabet, ABI files do not hold proteins.")
+                "Invalid alphabet, ABI files do not hold proteins."
+            )
         if isinstance(
-                Alphabet._get_base_alphabet(alphabet), Alphabet.RNAAlphabet):
+            Alphabet._get_base_alphabet(alphabet), Alphabet.RNAAlphabet
+        ):
             raise ValueError("Invalid alphabet, ABI files do not hold RNA.")
 
     # raise exception if handle mode is not 'rb'
-    if hasattr(handle, 'mode'):
-        if set('rb') != set(handle.mode.lower()):
+    if hasattr(handle, "mode"):
+        if set("rb") != set(handle.mode.lower()):
             raise ValueError("ABI files has to be opened in 'rb' mode.")
 
     # check if input file is a valid Abi file
@@ -107,16 +109,11 @@ def abi_iterator(handle, alphabet=None):
     if not marker:
         # handle empty file gracefully
         raise StopIteration
-    if marker != b'ABIF':
-        raise IOError('File should start ABIF, not %r' % marker)
+    if marker != b"ABIF":
+        raise IOError("File should start ABIF, not %r" % marker)
 
     # dirty hack for handling time information
-    times = {
-        'RUND1': '',
-        'RUND2': '',
-        'RUNT1': '',
-        'RUNT2': '',
-    }
+    times = {"RUND1": "", "RUND2": "", "RUNT1": "", "RUNT2": ""}
 
     # initialize annotations
     annot = dict(zip(_EXTRACT.values(), [None] * len(_EXTRACT)))
@@ -133,31 +130,31 @@ def abi_iterator(handle, alphabet=None):
         key = tag_name + str(tag_number)
 
         # PBAS2 is base-called sequence
-        if key == 'PBAS2':
+        if key == "PBAS2":
             seq = tag_data
-            ambigs = 'KYWMRS'
+            ambigs = "KYWMRS"
             if alphabet is None:
                 if set(seq).intersection(ambigs):
                     alphabet = ambiguous_dna
                 else:
                     alphabet = unambiguous_dna
         # PCON2 is quality values of base-called sequence
-        elif key == 'PCON2':
+        elif key == "PCON2":
             qual = [ord(val) for val in tag_data]
         # PLOC2 is the location of peaks
-        elif key == 'PLOC2':
+        elif key == "PLOC2":
             peakamps = [float(val) for val in tag_data]
-            annot['peak positions'] = peakamps
+            annot["peak positions"] = peakamps
         # DATA1-DATA4 is raw channel 1-4 output, DATA9-12 the analyzed one
-        elif key in ['DATA9', 'DATA10', 'DATA11', 'DATA12']:
+        elif key in ["DATA9", "DATA10", "DATA11", "DATA12"]:
             rawch = [float(val) for val in tag_data]
-            annot['channel ' + str(int(key[4:]) - 8)] = rawch
+            annot["channel " + str(int(key[4:]) - 8)] = rawch
         # FWO_1 is the order of channels in bases
-        elif key == 'FWO_1':
+        elif key == "FWO_1":
             channelorders = tag_data
-            annot['channels'] = channelorders
+            annot["channels"] = channelorders
         # SMPL1 is sample id entered before sequencing run
-        elif key == 'SMPL1':
+        elif key == "SMPL1":
             sample_id = tag_data
         elif key in times:
             times[key] = tag_data
@@ -167,12 +164,12 @@ def abi_iterator(handle, alphabet=None):
                 annot[_EXTRACT[key]] = tag_data
 
     # set time annotations
-    annot['run_start'] = '%s %s' % (times['RUND1'], times['RUNT1'])
-    annot['run_finish'] = '%s %s' % (times['RUND2'], times['RUNT2'])
+    annot["run_start"] = "%s %s" % (times["RUND1"], times["RUNT1"])
+    annot["run_finish"] = "%s %s" % (times["RUND2"], times["RUNT2"])
 
     # use the file name as SeqRecord.name if available
     #  try:
-    file_name = basename(handle.name).replace('.ab1', '')
+    file_name = basename(handle.name).replace(".ab1", "")
     #  except:
     #  file_name = ""
 
@@ -180,9 +177,10 @@ def abi_iterator(handle, alphabet=None):
         Seq(seq, alphabet),
         id=sample_id,
         name=file_name,
-        description='',
+        description="",
         annotations=annot,
-        letter_annotations={'phred_quality': qual})
+        letter_annotations={"phred_quality": qual},
+    )
 
     #  yield _abi_trim(record)
     yield record
@@ -205,8 +203,11 @@ def _abi_parse_header(header, handle):
         # add directory offset to tuple
         # to handle directories with data size <= 4 bytes
         handle.seek(start)
-        dir_entry = struct.unpack(_DIRFMT, handle.read(
-            struct.calcsize(_DIRFMT))) + (start, )
+        dir_entry = struct.unpack(
+            _DIRFMT, handle.read(struct.calcsize(_DIRFMT))
+        ) + (
+            start,
+        )
         index += 1
         # only parse desired dirs
         key = dir_entry[0].decode()
@@ -225,8 +226,9 @@ def _abi_parse_header(header, handle):
                 data_offset = tag_offset + 20
             handle.seek(data_offset)
             data = handle.read(data_size)
-            yield tag_name, tag_number, \
-                _parse_tag_data(elem_code, elem_num, data)
+            yield tag_name, tag_number, _parse_tag_data(
+                elem_code, elem_num, data
+            )
 
 
 def _abi_trim(seq_record: SeqRecord) -> SeqRecord:
@@ -253,8 +255,8 @@ def _abi_trim(seq_record: SeqRecord) -> SeqRecord:
     else:
         # calculate base score
         score_list = [
-            cutoff - (10**(qual / -10.0))
-            for qual in seq_record.letter_annotations['phred_quality']
+            cutoff - (10 ** (qual / -10.0))
+            for qual in seq_record.letter_annotations["phred_quality"]
         ]
 
         # calculate cummulative score
@@ -292,10 +294,10 @@ def _parse_tag_data(elem_code, elem_num, raw_data):
     if elem_code in _BYTEFMT:
         # because '>1s' unpack differently from '>s'
         if elem_num == 1:
-            num = ''
+            num = ""
         else:
             num = str(elem_num)
-        fmt = '>' + num + _BYTEFMT[elem_code]
+        fmt = ">" + num + _BYTEFMT[elem_code]
 
         assert len(raw_data) == struct.calcsize(fmt)
         data = struct.unpack(fmt, raw_data)
@@ -325,48 +327,52 @@ def _parse_tag_data(elem_code, elem_num, raw_data):
 
 
 def trim_and_rescale_trace(seq):
-    '''Trim traces to peak positions, shift to start from zero, and rescale'''
+    """Trim traces to peak positions, shift to start from zero, and rescale"""
 
-    traces = [seq.annotations['channel ' + str(i)] for i in range(1, 5)]
-    peaks = seq.annotations['peak positions']
+    traces = [seq.annotations["channel " + str(i)] for i in range(1, 5)]
+    peaks = seq.annotations["peak positions"]
     n = len(peaks)
     step = 1.0 * (peaks[-1] - peaks[0]) / n
 
-    traces = [[t for (i, t) in enumerate(trace) if peaks[0] <= i < peaks[-1]]
-              for trace in traces]
+    traces = [
+        [t for (i, t) in enumerate(trace) if peaks[0] <= i < peaks[-1]]
+        for trace in traces
+    ]
     peaks = [(p - peaks[0]) / step for p in peaks]
 
     x = [1.0 * i / step for i in range(len(traces[0]))]
 
-    seq.annotations['peak positions'] = peaks
+    seq.annotations["peak positions"] = peaks
     for (i, trace) in enumerate(traces, 1):
-        seq.annotations['channel ' + str(i)] = trace
-    seq.annotations['trace_x'] = x
+        seq.annotations["channel " + str(i)] = trace
+    seq.annotations["trace_x"] = x
     return seq
 
 
 def rescale_trace(seq: SeqRecord) -> SeqRecord:
-    traces = [seq.annotations['channel ' + str(i)] for i in range(1, 5)]
-    peaks = seq.annotations['peak positions']
+    traces = [seq.annotations["channel " + str(i)] for i in range(1, 5)]
+    peaks = seq.annotations["peak positions"]
     n = len(peaks)
     step = 1.0 * (peaks[-1] - peaks[0]) / n
-    traces = [[t for (i, t) in enumerate(trace) if peaks[0] <= i < peaks[-1]]
-              for trace in traces]
+    traces = [
+        [t for (i, t) in enumerate(trace) if peaks[0] <= i < peaks[-1]]
+        for trace in traces
+    ]
     #  peaks = [(p - peaks[0]) / step for p in peaks]
     peaks = [p / step for p in peaks]
 
     x = [1.0 * i / step for i in range(len(traces[0]))]
 
-    seq.annotations['peak positions'] = peaks
+    seq.annotations["peak positions"] = peaks
     for (i, trace) in enumerate(traces, 1):
-        seq.annotations['channel ' + str(i)] = trace
-    seq.annotations['trace_x'] = x
+        seq.annotations["channel " + str(i)] = trace
+    seq.annotations["trace_x"] = x
     return seq
 
 
 def parse_abi(filename: str) -> SeqRecord:
-    '''Parse an ABI file from Sanger sequencing'''
-    with open(filename, 'rb') as abifile:
+    """Parse an ABI file from Sanger sequencing"""
+    with open(filename, "rb") as abifile:
         seq = list(abi_iterator(abifile))[0]
 
     seq = rescale_trace(seq)
