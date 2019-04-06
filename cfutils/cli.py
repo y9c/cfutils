@@ -1,5 +1,16 @@
-#!/usr/bin/env python3
-"""wrap cfutils into cli app"""
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Copyright © 2019 yech <yech1990@gmail.com>
+#
+# Distributed under terms of the MIT license.
+
+"""
+Chromatogram File Utils.
+
+wrap cfutils into cli app
+- update in 20190405
+"""
 
 import click
 

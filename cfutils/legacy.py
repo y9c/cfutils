@@ -1,10 +1,14 @@
-#!/usr/bin/env python
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Copyright © 2019 yech <yech1990@gmail.com>
+#
+# Distributed under terms of the MIT license.
 
 """
-cfutils
-=======
+Chromatogram File Utils.
 
-Chromatogram File Utils
+- update in 20190405
 """
 
 import os
@@ -17,7 +21,6 @@ from subprocess import PIPE, STDOUT, Popen
 
 from Bio import SeqIO, pairwise2
 from Bio.Alphabet.IUPAC import IUPACUnambiguousDNA
-from Bio.SeqRecord import SeqRecord
 
 
 # get option

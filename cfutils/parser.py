@@ -205,9 +205,7 @@ def _abi_parse_header(header, handle):
         handle.seek(start)
         dir_entry = struct.unpack(
             _DIRFMT, handle.read(struct.calcsize(_DIRFMT))
-        ) + (
-            start,
-        )
+        ) + (start,)
         index += 1
         # only parse desired dirs
         key = dir_entry[0].decode()

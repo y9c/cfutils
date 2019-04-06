@@ -1,5 +1,16 @@
-#!/usr/bin/env python3
-"""do some wrap functions"""
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Copyright © 2019 yech <yech1990@gmail.com>
+#
+# Distributed under terms of the MIT license.
+
+"""
+Chromatogram File Utils.
+
+do some wrap functions
+- update in 20190405
+"""
 
 import os
 from datetime import datetime
@@ -19,7 +30,7 @@ def do_mutation_calling(
     report_mut_info=True,
     report_mut_plot=False,
 ):
-    """Test plot mutation region"""
+    """test plot mutation region."""
     if not output_dir:
         output_dir = os.path.join(
             os.getcwd(),

@@ -1,5 +1,15 @@
-#!/usr/bin/env python3
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Copyright © 2019 yech <yech1990@gmail.com>
+#
+# Distributed under terms of the MIT license.
+
 """
+Chromatogram File Utils.
+
+show alignment with matplotlib
+
 author:     Fabio Zanini
 date:       09/12/13
 content:    Plot functions for Sanger chromatographs.
@@ -70,8 +80,8 @@ def plot_chromatograph(seq: SeqRecord, ax=None, region: Tuple = None) -> None:
             for (i, ti) in enumerate(peaks)
             if (ti >= xlim[0]) and (ti <= xlim[1])
         ]
-        peaks = peaks[ind[0]:ind[-1] + 1]
-        seq = seq[ind[0]:ind[-1] + 1]
+        peaks = peaks[ind[0] : ind[-1] + 1]
+        seq = seq[ind[0] : ind[-1] + 1]
 
     # Plot traces
     trmax = max(map(max, traces))

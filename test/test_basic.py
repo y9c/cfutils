@@ -13,5 +13,5 @@ class TestBasicFunc(unittest.TestCase):
         self.assertGreaterEqual(sys.version_info, (3, 6))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

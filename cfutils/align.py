@@ -194,7 +194,7 @@ def get_local_quality(
     """
     qual = query_record.letter_annotations["phred_quality"]
     qual_flank = qual[
-        max(0, pos - 1 - flank_base_num):min(len(qual), pos + flank_base_num)
+        max(0, pos - 1 - flank_base_num) : min(len(qual), pos + flank_base_num)
     ]
     qual_flank_mean = sum(qual_flank) / len(qual_flank)
     return qual_flank_mean

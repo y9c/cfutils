@@ -66,11 +66,10 @@ in command line
 cfutils mut --query ./data/B5-M13R_B07.ab1 --subject data/3kref.fa
 ```
 
-as python modual
+as python module
 
 ```python
 import cfutils as cf
-
 ```
 
 ## ChangeLog

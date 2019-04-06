@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """test for cfutils"""
 
-import os
 import sys
 import unittest
 
@@ -13,7 +12,7 @@ from cfutils.run import do_mutation_calling
 try:
     assert sys.version_info > (3, 6)
 except AssertionError:
-    raise RuntimeError('cfutils requires Python 3.6+!')
+    raise RuntimeError("cfutils requires Python 3.6+!")
 
 
 class TestFunc(unittest.TestCase):
@@ -22,13 +21,14 @@ class TestFunc(unittest.TestCase):
     def test_plot_mutation(self):
         """Test plot mutation region"""
         do_mutation_calling(
-            query_ab1_file='./data/B5-M13R_B07.ab1',
-            subject_fasta_file='./data/3kref.fa',
+            query_ab1_file="./data/B5-M13R_B07.ab1",
+            subject_fasta_file="./data/3kref.fa",
             output_dir=None,
             file_basename=None,
             report_mut_info=True,
-            report_mut_plot=True)
+            report_mut_plot=True,
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

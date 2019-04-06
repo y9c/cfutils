@@ -1,5 +1,19 @@
-from datetime import date
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Copyright © 2019 yech <yech1990@gmail.com>
+#
+# Distributed under terms of the MIT license.
+
+"""
+Chromatogram File Utils.
+
+- update in 20190405
+"""
+
 import re
+import sys
+from datetime import date
 
 
 class CountMutations:
@@ -22,7 +36,7 @@ class CountMutations:
         """
             Parses a sequence definition and extracts the date
         """
-        parts = seq_def.split('|')
+        parts = seq_def.split("|")
 
         # Probably no date if there is no | in the line
         if len(parts) == 1:
@@ -31,9 +45,7 @@ class CountMutations:
         try:
             y = int(parts[-4])
         except ValueError:
-            print "Failed on this definition line"
-            print seq_def
-            print parts
+            print("Failed on this definition line")
             sys.exit(-1)
             m = self._to_int(parts[-3])
             d = self._to_int(parts[-2])
@@ -44,7 +56,7 @@ class CountMutations:
         """
             Parses genbank id out
         """
-        parts = seq_def.split('|')
+        parts = seq_def.split("|")
         if len(parts) > 1:
             return parts[1]
         else:
@@ -56,8 +68,8 @@ class CountMutations:
             Assumed to be in the 2 column after split( '|' ) and
             between ()
         """
-        p = re.compile('\((.*)\)')
-        parts = seq_def.split('|')
+        p = re.compile(r"\((.*)\)")
+        parts = seq_def.split("|")
         if len(parts) > 1:
             m = p.search(parts[2])
             return m.group(1)
@@ -75,7 +87,7 @@ class CountMutations:
         inc = 1
         for line in fh:
             # Start new date and set counter to 0
-            if not line.startswith('Q: '):
+            if not line.startswith("Q: "):
                 # Set mutation count for last date
                 if last_date:
                     chart[-1][3] = mut_count
@@ -103,14 +115,14 @@ class CountMutations:
     def get_chart(self, mutations_file, cutoff_date):
         p = self.parse(mutations_file, cutoff_date)
         for gi, dt, name, num in p:
-            print "%s,%s,%s,%s" % (gi, name, dt, num)
+            print("%s,%s,%s,%s" % (gi, name, dt, num))
 
 
 def parse_date(dte):
-    if '-' in dte:
-        p = dte.split('-')
-    elif '/' in dte:
-        p = dte.split('/')
+    if "-" in dte:
+        p = dte.split("-")
+    elif "/" in dte:
+        p = dte.split("/")
 
     if len(p) == 3:
         return date(int(p[0]), int(p[1]), int(p[2]))
