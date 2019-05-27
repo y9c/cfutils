@@ -91,10 +91,10 @@ def plot_chromatograph(seq: SeqRecord, ax=None, region: Tuple = None) -> None:
             horizontalalignment="center",
         )
 
-    ax.set_ylim(ymin=-0.15, ymax=1.05)
+    ax.set_ylim(bottom=-0.15, top=1.05)
     ax.set_xlim(
-        xmin=peaks[0] - max(2, 0.02 * (peaks[-1] - peaks[0])),
-        xmax=peaks[-1] + max(2, 0.02 * (peaks[-1] - peaks[0])),
+        left=peaks[0] - max(2, 0.02 * (peaks[-1] - peaks[0])),
+        right=peaks[-1] + max(2, 0.02 * (peaks[-1] - peaks[0])),
     )
     ax.set_yticklabels([])
     ax.set_xticks(peaks)

@@ -12,6 +12,7 @@ do some wrap functions
 
 import os
 from datetime import datetime
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 
@@ -38,7 +39,9 @@ def do_mutation_calling(
     os.makedirs(output_dir, exist_ok=True)
 
     if not file_basename:
-        file_basename = "temp"
+        file_basename = (
+            Path(query_ab1_file).stem + "_vs_" + Path(subject_fasta_file).stem
+        )
 
     query_record = parse_abi(query_ab1_file)
     subject_record = parse_fasta(subject_fasta_file)
@@ -51,27 +54,31 @@ def do_mutation_calling(
             )
             + "\n"
         )
-        for m in mutations:
+        for mut in mutations:
             f_mut.write(
-                f"{m.ref_pos}\t{m.ref_base}\t{m.cf_pos}\t{m.cf_base}\t{m.cf_qual}\n"
+                f"{mut.ref_pos}\t{mut.ref_base}\t{mut.cf_pos}\t{mut.cf_base}\t{mut.cf_qual}\n"
             )
 
     mutations = [m for m in mutations if m.cf_qual and m.cf_qual >= min_qual]
-    if report_mut_plot:
-        fig, ax = plt.subplots(
+    if mutations and report_mut_plot:
+        fig, axes = plt.subplots(
             len(mutations), figsize=(15, 5 * len(mutations))
         )
         flanking_size = 10
         for i, mutation_info in enumerate(mutations):
+            if len(mutations) == 1:
+                ax = axes
+            else:
+                ax = axes[i]
             plot_chromatograph(
                 query_record,
-                ax[i],
+                ax,
                 region=(
                     mutation_info.cf_pos - flanking_size,
                     mutation_info.cf_pos + flanking_size,
                 ),
             )
-            highlight_base(mutation_info.cf_pos, query_record, ax[i])
+            highlight_base(mutation_info.cf_pos, query_record, ax)
             annotate_mutation(
                 [
                     mutation_info.ref_pos,
@@ -80,6 +87,6 @@ def do_mutation_calling(
                     mutation_info.cf_base,
                 ],
                 query_record,
-                ax[i],
+                ax,
             )
         fig.savefig(os.path.join(output_dir, file_basename + ".pdf"))
