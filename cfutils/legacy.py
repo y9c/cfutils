@@ -5,8 +5,7 @@
 #
 # Distributed under terms of the MIT license.
 
-"""
-Chromatogram File Utils.
+"""Chromatogram File Utils.
 
 - update in 20190405
 """
@@ -186,9 +185,7 @@ def tcoffee_align(seq1, seq2, ignore_ambig):
 
 
 def is_ambig(base):
-    """
-        If a given base is ambiguous or not
-    """
+    """If a given base is ambiguous or not."""
     return base.upper() not in IUPACUnambiguousDNA.letters
 
 

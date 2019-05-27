@@ -5,8 +5,7 @@
 #
 # Distributed under terms of the MIT license.
 
-"""
-Chromatogram File Utils.
+"""Chromatogram File Utils.
 
 wrap cfutils into cli app
 - update in 20190405
@@ -20,7 +19,7 @@ from cfutils.run import do_mutation_calling
 @click.group()
 @click.option("--debug/--no-debug", default=False)
 def cli(debug):
-    """Chromatogram File Utils"""
+    """Chromatogram File Utils."""
     click.echo("Debug mode is %s" % ("on" if debug else "off"))
 
 
@@ -45,7 +44,7 @@ def cli(debug):
     help="Generate figure of mutation in chromatogram ",
 )
 def mut(query, subject, outdir, outbase, plot):
-    """do mutation calling"""
+    """do mutation calling."""
     do_mutation_calling(
         query_ab1_file=query,
         subject_fasta_file=subject,
@@ -58,5 +57,5 @@ def mut(query, subject, outdir, outbase, plot):
 
 @cli.command()
 def test():
-    """test"""
+    """test."""
     click.echo("Testing...")

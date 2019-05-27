@@ -5,8 +5,7 @@
 #
 # Distributed under terms of the MIT license.
 
-"""
-Chromatogram File Utils.
+"""Chromatogram File Utils.
 
 show alignment with matplotlib
 
@@ -16,35 +15,25 @@ content:    Plot functions for Sanger chromatographs.
 modified:   By Ye Chang in 2018-05-14
 """
 
-import logging
 from collections import defaultdict
 from typing import List, Tuple
 
-# Modules
 import matplotlib.pyplot as plt
 from Bio.SeqRecord import SeqRecord
 
-LOGGER: logging.Logger = logging.getLogger()
-HANDLER: logging.StreamHandler = logging.StreamHandler()
-FORMATTER: logging.Formatter = logging.Formatter(
-    "%(asctime)s %(name)-12s %(levelname)-8s %(message)s"
-)
-HANDLER.setFormatter(FORMATTER)
-LOGGER.addHandler(HANDLER)
-LOGGER.setLevel(logging.DEBUG)
-# LOGGER.setLevel(logging.INFO)
+from .utils import get_logger
 
-# Globals
-BASES: List[str] = ["A", "C", "G", "T"]
-COLORS = defaultdict(
+LOGGER = get_logger(__name__)
+
+
+_BASES = ["A", "C", "G", "T"]
+_COLORS = defaultdict(
     lambda: "purple", {"A": "g", "C": "b", "G": "k", "T": "r"}
 )
 
 
-# Functions
 def plot_chromatograph(seq: SeqRecord, ax=None, region: Tuple = None) -> None:
-    """
-    Plot Sanger chromatograph
+    """Plot Sanger chromatograph.
 
     region: include both start and end
     """
@@ -87,8 +76,8 @@ def plot_chromatograph(seq: SeqRecord, ax=None, region: Tuple = None) -> None:
     trmax = max(map(max, traces))
     for base in BASES:
         y = [1.0 * ci / trmax for ci in traces[BASES.index(base)]]
-        ax.plot(x, y, color=COLORS[base], lw=2, label=base)
-        ax.fill_between(x, 0, y, facecolor=COLORS[base], alpha=0.125)
+        ax.plot(x, y, color=_COLORS[base], lw=2, label=base)
+        ax.fill_between(x, 0, y, facecolor=_COLORS[base], alpha=0.125)
 
     # Plot bases at peak positions
     LOGGER.debug(seq)
@@ -98,7 +87,7 @@ def plot_chromatograph(seq: SeqRecord, ax=None, region: Tuple = None) -> None:
             peak,
             -0.11,
             seq[i],
-            color=COLORS[seq[i]],
+            color=_COLORS[seq[i]],
             horizontalalignment="center",
         )
 
@@ -115,7 +104,7 @@ def plot_chromatograph(seq: SeqRecord, ax=None, region: Tuple = None) -> None:
 
 
 def highlight_base(pos_highlight: int, seq: SeqRecord, ax) -> Tuple:
-    """Highlight the area around a peak with a rectangle"""
+    """Highlight the area around a peak with a rectangle."""
 
     peaks = seq.annotations["peak positions"]
     peak = peaks[pos_highlight - 1]
@@ -152,6 +141,7 @@ def highlight_base(pos_highlight: int, seq: SeqRecord, ax) -> Tuple:
 
 def annotate_mutation(mut: List, seq: SeqRecord, ax) -> None:
     """Annotate mutation pattern chromatograph position.
+
     mut: List[ref_position, ref_base, cf_position, cf_base]
     """
     peaks = seq.annotations["peak positions"]

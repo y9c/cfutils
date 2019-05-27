@@ -3,6 +3,7 @@
 # This code is part of the Biopython distribution and governed by its
 # license. Please see the LICENSE file that should have been included
 # as part of this package.
+
 """Bio.SeqIO parser for the ABI format.
 
 ABI is the format used by Applied Biosystem's sequencing machines to store
@@ -10,7 +11,6 @@ sequencing results.
 
 For more details on the format specification, visit:
 http://www.appliedbiosystem.com/support/software_community/ABIF_File_Format.pdf
-
 """
 
 import datetime
@@ -83,8 +83,7 @@ _DIRFMT = ">4sI2H4I"
 
 
 def abi_iterator(handle, alphabet=None):
-    """Iterator for the Abi file format.
-    """
+    """Iterator for the Abi file format."""
     # raise exception is alphabet is not dna
     if alphabet is not None:
         if isinstance(
@@ -187,8 +186,7 @@ def abi_iterator(handle, alphabet=None):
 
 
 def _abi_parse_header(header, handle):
-    """Generator that returns directory contents.
-    """
+    """Generator that returns directory contents."""
     # header structure (after ABIF marker):
     # file version, tag name, tag number,
     # element type code, element size, number of elements
@@ -325,7 +323,7 @@ def _parse_tag_data(elem_code, elem_num, raw_data):
 
 
 def trim_and_rescale_trace(seq):
-    """Trim traces to peak positions, shift to start from zero, and rescale"""
+    """Trim traces to peak positions, shift to start from zero, and rescale."""
 
     traces = [seq.annotations["channel " + str(i)] for i in range(1, 5)]
     peaks = seq.annotations["peak positions"]
@@ -369,7 +367,7 @@ def rescale_trace(seq: SeqRecord) -> SeqRecord:
 
 
 def parse_abi(filename: str) -> SeqRecord:
-    """Parse an ABI file from Sanger sequencing"""
+    """Parse an ABI file from Sanger sequencing."""
     with open(filename, "rb") as abifile:
         seq = list(abi_iterator(abifile))[0]
 
@@ -378,8 +376,7 @@ def parse_abi(filename: str) -> SeqRecord:
 
 
 def parse_fasta(filename: str) -> SeqRecord:
-    """parse_fasta
-    may support other type of file in the future
+    """parse_fasta may support other type of file in the future.
 
     :param filename:
     :type filename: str

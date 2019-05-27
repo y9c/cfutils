@@ -5,11 +5,9 @@
 #
 # Distributed under terms of the MIT license.
 
-"""
-Chromatogram File Utils.
+"""Chromatogram File Utils.
 
 do some wrap functions
-- update in 20190405
 """
 
 import os
@@ -31,6 +29,7 @@ def do_mutation_calling(
     report_mut_plot=False,
 ):
     """test plot mutation region."""
+    min_qual = 50
     if not output_dir:
         output_dir = os.path.join(
             os.getcwd(),
@@ -54,10 +53,10 @@ def do_mutation_calling(
         )
         for m in mutations:
             f_mut.write(
-                f"{m.ref_position}\t{m.ref_base}\t{m.cf_position}\t{m.cf_base}\t{m.cf_qual}\n"
+                f"{m.ref_pos}\t{m.ref_base}\t{m.cf_pos}\t{m.cf_base}\t{m.cf_qual}\n"
             )
 
-    mutations = [m for m in mutations if m.cf_qual >= 50]
+    mutations = [m for m in mutations if m.cf_qual and m.cf_qual >= min_qual]
     if report_mut_plot:
         fig, ax = plt.subplots(
             len(mutations), figsize=(15, 5 * len(mutations))
@@ -68,16 +67,16 @@ def do_mutation_calling(
                 query_record,
                 ax[i],
                 region=(
-                    mutation_info.cf_position - flanking_size,
-                    mutation_info.cf_position + flanking_size,
+                    mutation_info.cf_pos - flanking_size,
+                    mutation_info.cf_pos + flanking_size,
                 ),
             )
-            highlight_base(mutation_info.cf_position, query_record, ax[i])
+            highlight_base(mutation_info.cf_pos, query_record, ax[i])
             annotate_mutation(
                 [
-                    mutation_info.ref_position,
+                    mutation_info.ref_pos,
                     mutation_info.ref_base,
-                    mutation_info.cf_position,
+                    mutation_info.cf_pos,
                     mutation_info.cf_base,
                 ],
                 query_record,
