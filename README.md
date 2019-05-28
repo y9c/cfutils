@@ -8,24 +8,10 @@ for sanger sequencing data visualizing, alignment, mutation calling, and trimmin
 
 ![plot chromatogram with mutation](https://raw.githubusercontent.com/yech1990/cfutils/master/data/plot.png)
 
-code to generate demo above
+> command to generate demo above
 
-```python
-import matplotlib.pyplot as plt
-from cfutils.parser import parse_abi, parse_fasta
-from cfutils.align import align
-from cfutils.show import highlight_base, plot_chromatograph
-
-query_record = parse_abi('./data/B5-M13R_B07.ab1', trim=False)
-subject_record = parse_fasta('./data/3kref.fa')
-mutations = align(query_record, subject_record, ignore_ambig=True)
-selected_mutation = mutations[5][2]
-print(selected_mutation)
-fig, ax = plt.subplots(1, 1, figsize=(15, 6))
-plot_chromatograph(
-    query_record, ax, xlim=[selected_mutation - 10, selected_mutation + 10])
-highlight_base(selected_mutation, query_record, ax)
-plt.savefig('./test.pdf')
+```bash
+cfutils mut --query ./data/B5-M13R_B07.ab1 --subject ./data/ref.fa --outdir ./data/ --plot
 ```
 
 ## How to install?
@@ -63,7 +49,7 @@ make test
 in command line
 
 ```bash
-cfutils mut --query ./data/B5-M13R_B07.ab1 --subject data/3kref.fa
+cfutils mut --help
 ```
 
 as python module

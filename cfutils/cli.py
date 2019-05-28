@@ -13,7 +13,7 @@ wrap cfutils into cli app
 
 import click
 
-from cfutils.run import do_mutation_calling
+from cfutils.run import report_mutation
 
 
 @click.group()
@@ -44,8 +44,8 @@ def cli(debug):
     help="Generate figure of mutation in chromatogram ",
 )
 def mut(query, subject, outdir, outbase, plot):
-    """do mutation calling."""
-    do_mutation_calling(
+    """do mutation calling, then report in tsv and pdf."""
+    report_mutation(
         query_ab1_file=query,
         subject_fasta_file=subject,
         output_dir=outdir,

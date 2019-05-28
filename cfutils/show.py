@@ -22,6 +22,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from Bio.SeqRecord import SeqRecord
 
+from .align import SitePair
 from .utils import get_logger
 
 LOGGER = get_logger(__name__)
@@ -100,8 +101,14 @@ def plot_chromatograph(seq: SeqRecord, ax=None, region: Tuple = None) -> None:
     ax.set_yticklabels([])
     ax.set_xticks(peaks)
     ax.set_xticklabels(list(range(region[0], region[0] + len(peaks))))
+    # hide border
+    ax.spines["left"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["top"].set_visible(False)
+    # hide y axis
+    ax.get_yaxis().set_visible(False)
     ax.grid(False)
-    ax.legend(loc="upper left", bbox_to_anchor=(0.93, 0.99))
+    ax.legend(loc="upper left", bbox_to_anchor=(0.95, 0.99))
 
 
 def highlight_base(
@@ -144,19 +151,18 @@ def highlight_base(
     return (xmin, xmax)
 
 
-def annotate_mutation(mut: List, seq: SeqRecord, ax) -> None:
-    """Annotate mutation pattern chromatograph position.
-
-    mut: List[ref_position, ref_base, cf_position, cf_base]
-    """
+def annotate_mutation(mut: SitePair, seq: SeqRecord, ax) -> None:
+    """Annotate mutation pattern chromatograph position."""
     peaks = seq.annotations["peak positions"]
-    peak = peaks[mut[2] - 1]
+    peak = peaks[mut.cf_pos - 1]
     ax.text(
         peak,
-        0.95,
-        f"{mut[1]}{mut[0]}{mut[3]}",
+        0.99,
+        f"{mut.ref_base}{mut.ref_pos}{mut.cf_base}",
         color="c",
-        fontsize="x-large",
+        fontsize="large",
         fontweight="bold",
-        horizontalalignment="center",
+        rotation=45,
+        ha="center",
+        va="center",
     )

@@ -23,10 +23,11 @@ from cfutils.show import annotate_mutation, highlight_base, plot_chromatograph
 
 
 def do_mutation_showing(
-    query_record, mutations: List, output_dir: str, file_basename: str
+    query_record, mutations: List, output_fig_file: str
 ) -> None:
     """report mutations in pdf format."""
-    min_qual = 50
+    min_base_qual = 50
+    min_local_qual = 20
 
     mutations = sorted(mutations, key=lambda x: x.cf_pos)
     flanking_size = 6
@@ -41,6 +42,7 @@ def do_mutation_showing(
             mutation_windows.append(mutation_region)
             start_pos = max(1, mutations[idx].cf_pos - flanking_size)
             mutation_region = [mut]
+    mutation_windows.append(mutation_region)
 
     fig, axes = plt.subplots(
         len(mutation_windows), figsize=(20, 5 * len(mutation_windows))
@@ -58,20 +60,19 @@ def do_mutation_showing(
         )
         for mut in mutation_region:
             base_passed = (
-                mut.qual_site is not None and mut.qual_site > min_qual
+                mut.qual_site is not None
+                and mut.qual_site >= min_base_qual
+                and mut.qual_local is not None
+                and mut.qual_local >= min_local_qual
             )
             highlight_base(
                 mut.cf_pos, query_record, ax, passed_filter=base_passed
             )
-            annotate_mutation(
-                [mut.ref_pos, mut.ref_base, mut.cf_pos, mut.cf_base],
-                query_record,
-                ax,
-            )
-    fig.savefig(os.path.join(output_dir, file_basename + ".pdf"))
+            annotate_mutation(mut, query_record, ax)
+    fig.savefig(output_fig_file, bbox_inches="tight")
 
 
-def do_mutation_calling(
+def report_mutation(
     query_ab1_file,
     subject_fasta_file,
     output_dir=None,
@@ -111,4 +112,5 @@ def do_mutation_calling(
                 f"{mut.ref_pos}\t{mut.ref_base}\t{mut.cf_pos}\t{mut.cf_base}\t{mut.qual_site}\t{mut.qual_local}\n"
             )
     if mutations:
-        do_mutation_showing(query_record, mutations, output_dir, file_basename)
+        output_fig_file = os.path.join(output_dir, file_basename + ".pdf")
+        do_mutation_showing(query_record, mutations, output_fig_file)
