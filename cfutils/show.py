@@ -18,6 +18,7 @@ modified:   By Ye Chang in 2018-05-14
 from collections import defaultdict
 from typing import List, Tuple
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from Bio.SeqRecord import SeqRecord
 
@@ -103,7 +104,9 @@ def plot_chromatograph(seq: SeqRecord, ax=None, region: Tuple = None) -> None:
     ax.legend(loc="upper left", bbox_to_anchor=(0.93, 0.99))
 
 
-def highlight_base(pos_highlight: int, seq: SeqRecord, ax) -> Tuple:
+def highlight_base(
+    pos_highlight: int, seq: SeqRecord, ax, passed_filter=True
+) -> Tuple:
     """Highlight the area around a peak with a rectangle."""
 
     peaks = seq.annotations["peak positions"]
@@ -125,14 +128,16 @@ def highlight_base(pos_highlight: int, seq: SeqRecord, ax) -> Tuple:
 
     ymin, ymax = ax.get_ylim()
 
-    from matplotlib.patches import Rectangle
-
-    rec = Rectangle(
+    if passed_filter:
+        fcolor = "yellow"
+    else:
+        fcolor = "grey"
+    rec = mpl.patches.Rectangle(
         (xmin, ymin),
         (xmax - xmin),
         (ymax - ymin),
         edgecolor="none",
-        facecolor="yellow",
+        facecolor=fcolor,
         alpha=0.3,
     )
     ax.add_patch(rec)

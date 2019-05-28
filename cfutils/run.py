@@ -13,12 +13,62 @@ do some wrap functions
 import os
 from datetime import datetime
 from pathlib import Path
+from typing import List
 
 import matplotlib.pyplot as plt
 
 from cfutils.align import align
 from cfutils.parser import parse_abi, parse_fasta
 from cfutils.show import annotate_mutation, highlight_base, plot_chromatograph
+
+
+def do_mutation_showing(
+    query_record, mutations: List, output_dir: str, file_basename: str
+) -> None:
+    """report mutations in pdf format."""
+    min_qual = 50
+
+    mutations = sorted(mutations, key=lambda x: x.cf_pos)
+    flanking_size = 6
+    windows_size = 30
+    mutation_windows = []
+    start_pos = max(1, mutations[0].cf_pos - flanking_size)
+    mutation_region = []
+    for idx, mut in enumerate(mutations):
+        if mut.cf_pos + flanking_size <= start_pos + windows_size:
+            mutation_region.append(mut)
+        else:
+            mutation_windows.append(mutation_region)
+            start_pos = max(1, mutations[idx].cf_pos - flanking_size)
+            mutation_region = [mut]
+
+    fig, axes = plt.subplots(
+        len(mutation_windows), figsize=(20, 5 * len(mutation_windows))
+    )
+    for idx, mutation_region in enumerate(mutation_windows):
+        if len(mutation_windows) == 1:
+            ax = axes
+        else:
+            ax = axes[idx]
+        region_start = max(1, mutation_region[0].cf_pos - flanking_size)
+        plot_chromatograph(
+            query_record,
+            ax,
+            region=(region_start, region_start + windows_size),
+        )
+        for mut in mutation_region:
+            base_passed = (
+                mut.qual_site is not None and mut.qual_site > min_qual
+            )
+            highlight_base(
+                mut.cf_pos, query_record, ax, passed_filter=base_passed
+            )
+            annotate_mutation(
+                [mut.ref_pos, mut.ref_base, mut.cf_pos, mut.cf_base],
+                query_record,
+                ax,
+            )
+    fig.savefig(os.path.join(output_dir, file_basename + ".pdf"))
 
 
 def do_mutation_calling(
@@ -29,16 +79,15 @@ def do_mutation_calling(
     report_mut_info=True,
     report_mut_plot=False,
 ):
-    """test plot mutation region."""
-    min_qual = 50
-    if not output_dir:
+    """reprot mutation within region."""
+    if output_dir is None:
         output_dir = os.path.join(
             os.getcwd(),
             "CFresult_" + datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
         )
     os.makedirs(output_dir, exist_ok=True)
 
-    if not file_basename:
+    if file_basename is None:
         file_basename = (
             Path(query_ab1_file).stem + "_vs_" + Path(subject_fasta_file).stem
         )
@@ -48,45 +97,18 @@ def do_mutation_calling(
     mutations = align(query_record, subject_record, ignore_ambig=True)
     # save tsv file
     with open(os.path.join(output_dir, file_basename + ".tsv"), "w") as f_mut:
-        f_mut.write(
-            "\t".join(
-                ["RefLocation", "RefBase", "CfLocation", "CfBase", "CfQual"]
-            )
-            + "\n"
-        )
+        header = [
+            "RefLocation",
+            "RefBase",
+            "CfLocation",
+            "CfBase",
+            "SiteQual",
+            "LocalQual",
+        ]
+        f_mut.write("\t".join(header) + "\n")
         for mut in mutations:
             f_mut.write(
-                f"{mut.ref_pos}\t{mut.ref_base}\t{mut.cf_pos}\t{mut.cf_base}\t{mut.cf_qual}\n"
+                f"{mut.ref_pos}\t{mut.ref_base}\t{mut.cf_pos}\t{mut.cf_base}\t{mut.qual_site}\t{mut.qual_local}\n"
             )
-
-    mutations = [m for m in mutations if m.cf_qual and m.cf_qual >= min_qual]
-    if mutations and report_mut_plot:
-        fig, axes = plt.subplots(
-            len(mutations), figsize=(15, 5 * len(mutations))
-        )
-        flanking_size = 10
-        for i, mutation_info in enumerate(mutations):
-            if len(mutations) == 1:
-                ax = axes
-            else:
-                ax = axes[i]
-            plot_chromatograph(
-                query_record,
-                ax,
-                region=(
-                    mutation_info.cf_pos - flanking_size,
-                    mutation_info.cf_pos + flanking_size,
-                ),
-            )
-            highlight_base(mutation_info.cf_pos, query_record, ax)
-            annotate_mutation(
-                [
-                    mutation_info.ref_pos,
-                    mutation_info.ref_base,
-                    mutation_info.cf_pos,
-                    mutation_info.cf_base,
-                ],
-                query_record,
-                ax,
-            )
-        fig.savefig(os.path.join(output_dir, file_basename + ".pdf"))
+    if mutations:
+        do_mutation_showing(query_record, mutations, output_dir, file_basename)

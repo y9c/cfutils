@@ -7,7 +7,10 @@
 # Created: 2019-05-27 20:19
 
 
-"""align two sequence with ref by blast."""
+"""align two sequence with ref by blast.
+
+Use 1-based for all the position
+"""
 
 import shutil
 import sys
@@ -15,7 +18,7 @@ import tempfile
 from dataclasses import dataclass
 from io import StringIO
 from subprocess import PIPE, STDOUT, Popen
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from Bio.Alphabet.IUPAC import IUPACUnambiguousDNA, ambiguous_dna
 from Bio.Blast import NCBIXML
@@ -37,7 +40,8 @@ class SitePair:
     ref_base: str
     cf_pos: int
     cf_base: str
-    cf_qual: Optional[int] = None
+    qual_site: Optional[int] = None
+    qual_local: Optional[int] = None
 
     def __repr__(self):
         return (
@@ -123,6 +127,7 @@ def parse_blast(output, ignore_ambig=False):
 def get_muts(hsp: HSP, ignore_ambig: bool = False) -> List[SitePair]:
     """get_muts for hsp object.
 
+    NOTE: HSP object is 1-based
     @param: hsp:
     @param: ignore_ambig:
     @rtype: List[List[Union[int, str]]]
@@ -163,19 +168,20 @@ def get_muts(hsp: HSP, ignore_ambig: bool = False) -> List[SitePair]:
     return mutations
 
 
-def get_local_quality(
+def get_quality(
     pos: int, query_record: SeqRecord, flank_base_num=0
-) -> int:
-    """get_local_quality.
+) -> Tuple[int, int]:
+    """get quality of site and local region.
 
     change flank_base_num to number gt 0 to get mean qual within region
     """
     qual = query_record.letter_annotations["phred_quality"]
+    qual_site = qual[pos - 1]
     qual_flank = qual[
         max(0, pos - 1 - flank_base_num) : min(len(qual), pos + flank_base_num)
     ]
-    qual_flank_mean = sum(qual_flank) / len(qual_flank)
-    return int(qual_flank_mean)
+    qual_local = int(sum(qual_flank) / len(qual_flank))
+    return qual_site, qual_local
 
 
 def align(
@@ -189,8 +195,8 @@ def align(
         "%s: Total mutations: %s" % (query_record.description, len(mutations))
     )
     for mut in mutations:
-        mut.cf_qual = get_local_quality(
+        mut.qual_site, mut.qual_local = get_quality(
             mut.cf_pos, query_record, flank_base_num=5
         )
-        LOGGER.info(f"{mut}\tqual:{mut.cf_qual}")
+        LOGGER.info(f"{mut}\tlocal:{mut.qual_local}\tsite:{mut.qual_site}")
     return mutations
