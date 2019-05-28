@@ -118,6 +118,14 @@ def parse_blast(output, ignore_ambig=False):
             )
         raise err
 
+    # TODO: check and score alignment result
+    # the second hit?
+    # the alignment score
+    if len(blast_records.alignments) < 1:
+        LOGGER.info(
+            f"Can not find alignment of the ab1 file with the ref sequence!"
+        )
+        return []
     alignment = blast_records.alignments[0]
     hsp = alignment.hsps[0]
     mutations = get_muts(hsp, ignore_ambig=ignore_ambig)
