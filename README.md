@@ -72,3 +72,4 @@ import cfutils as cf
 - [x] wrap as a cli app
 - [ ] return quality score in output
 - [ ] fix issue that selected base is not in the middle
+- [ ] fix plot_chromatograph rendering bug
