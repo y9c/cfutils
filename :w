@@ -56,7 +56,7 @@ def do_mutation_showing(
         plot_chromatograph(
             query_record,
             region=(region_start, region_start + windows_size),
-            ax=ax,
+            ax,
         )
         for mut in mutation_region:
             base_passed = (
