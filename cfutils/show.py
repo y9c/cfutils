@@ -43,7 +43,7 @@ def plot_chromatograph(
         region_start, region_end = 0, len(seq)
     else:
         region_start = max(region[0], 0)
-        region_end = min(region[1], len(seq))
+        region_end = min(region[1], len(seq) - 1)
 
     if ax is None:
         _, ax = plt.subplots(1, 1, figsize=(16, 6))
@@ -61,14 +61,18 @@ def plot_chromatograph(
     xlim_left, xlim_right = peaks[region_start] - 0.5, peaks[region_end] + 0.5
 
     # subset peak and sequence
+    # TODO: this might fix the bug
+    peak_start = peaks[0]
     peak_zip = [
-        (p, s) for p, s in zip(peaks, seq) if region_start <= p <= region_end
+        (p, s)
+        for i, (p, s) in enumerate(zip(peaks, seq))
+        if region_start <= i <= region_end
     ]
     peaks, seq = list(zip(*peak_zip))
 
     # subset trace_x and traces_y together
     trace_zip = [
-        (x, *ys)
+        (x + peak_start, *ys)
         for x, *ys in zip(trace_x, *traces_y)
         if xlim_left <= x <= xlim_right
     ]
@@ -88,7 +92,17 @@ def plot_chromatograph(
     # Plot bases at peak positions
     for i, peak in enumerate(peaks):
         #  LOGGER.debug(f"{i}, {peak}, {seq[i]}, {xlim_left + i}")
-        ax.text(peak, -0.11, seq[i], color=_colors[seq[i]], va="center")
+        ax.text(
+            peak,
+            -0.11,
+            seq[i],
+            color=_colors[seq[i]],
+            va="center",
+            ha="center",
+            alpha=0.66,
+            fontsize="x-large",
+            fontweight="bold",
+        )
 
     ax.set_ylim(bottom=-0.15, top=1.05)
     #  peaks[0] - max(2, 0.02 * (peaks[-1] - peaks[0])),
