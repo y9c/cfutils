@@ -97,12 +97,15 @@ def run_blast(
             #  LOGGER.debug(stdeo.decode())
 
     # NOTE: this SitePair object is without qual
-    mutations = parse_blast(stdeo, ignore_ambig=ignore_ambig)
-    return mutations
+    hsp = parse_blast(stdeo, ignore_ambig=ignore_ambig)
+    return hsp
 
 
 def parse_blast(output, ignore_ambig=False):
-    """parse blastn output."""
+    """parse blastn output.
+
+    @return hsp: HSP (high-scoring pair)
+    """
     blast_output = StringIO(output.decode())
 
     try:
@@ -121,35 +124,41 @@ def parse_blast(output, ignore_ambig=False):
     # TODO: check and score alignment result
     # the second hit?
     # the alignment score
-    if len(blast_records.alignments) < 1:
+    if not blast_records.alignments:
         LOGGER.info(
             f"Can not find alignment of the ab1 file with the ref sequence!"
         )
         return []
     alignment = blast_records.alignments[0]
+    # only return the first result
     hsp = alignment.hsps[0]
-    mutations = get_muts(hsp, ignore_ambig=ignore_ambig)
-    return mutations
+    return hsp
 
 
-def get_muts(hsp: HSP, ignore_ambig: bool = False) -> List[SitePair]:
-    """get_muts for hsp object.
+def get_pairs(
+    hsp: HSP, ignore_ambig: bool = False, mut_only: bool = False
+) -> List[SitePair]:
+    """get_pairs for parse SitePair object from hsp object.
+
+    # can be used as `get_muts`, when mut_only == True
 
     NOTE: HSP object is 1-based
     @param: hsp:
     @param: ignore_ambig:
     @rtype: List[List[Union[int, str]]]
     """
-    mutations = []
+    sitepairs = []
     if hsp.sbjct_start < hsp.sbjct_end:
         sbjct_loc = hsp.sbjct_start
         query_loc = hsp.query_start
         for query_base, sbjct_base in zip(hsp.query, hsp.sbjct):
 
             if ignore_ambig and is_ambig(sbjct_base):
-                LOGGER.info("Skipping ambiguous base: {sbjct_base}")
-            elif query_base != sbjct_base:
-                mutations.append(
+                LOGGER.debug(f"Skipping ambiguous base: {sbjct_base}")
+            elif mut_only and query_base == sbjct_base:
+                LOGGER.debug(f"Skipping non mut base: {sbjct_base}")
+            else:
+                sitepairs.append(
                     SitePair(sbjct_loc, sbjct_base, query_loc, query_base)
                 )
             if sbjct_base != "-":
@@ -165,15 +174,17 @@ def get_muts(hsp: HSP, ignore_ambig: bool = False) -> List[SitePair]:
 
             if ignore_ambig and is_ambig(sbjct_base):
                 LOGGER.info("Skipping ambiguous base\n")
-            elif query_base != sbjct_base:
-                mutations.append(
+            elif mut_only and query_base == sbjct_base:
+                LOGGER.debug(f"Skipping non mut base: {sbjct_base}")
+            else:
+                sitepairs.append(
                     SitePair(sbjct_loc, sbjct_base, query_loc, query_base)
                 )
             if sbjct_base != "-":
                 sbjct_loc += 1
             if query_base != "-":
                 query_loc -= 1
-    return mutations
+    return sitepairs
 
 
 def get_quality(
@@ -195,16 +206,38 @@ def get_quality(
 def align(
     query_record: SeqRecord, subject_record: SeqRecord, ignore_ambig=False
 ) -> List[SitePair]:
-    """run align."""
-    mutations = run_blast(
-        query_record, subject_record, ignore_ambig=ignore_ambig
-    )
+    """run align.
+
+    @return: list of SitePair about all sites
+    """
+    hsp = run_blast(query_record, subject_record, ignore_ambig=ignore_ambig)
+    sitepairs = get_pairs(hsp, ignore_ambig=ignore_ambig, mut_only=False)
     LOGGER.info(
-        "%s: Total mutations: %s" % (query_record.description, len(mutations))
+        f"{query_record.description}: Total aligned number: {len(sitepairs)}"
     )
-    for mut in mutations:
-        mut.qual_site, mut.qual_local = get_quality(
-            mut.cf_pos, query_record, flank_base_num=5
+    for site in sitepairs:
+        site.qual_site, site.qual_local = get_quality(
+            site.cf_pos, query_record, flank_base_num=5
         )
-        LOGGER.info(f"{mut}\tlocal:{mut.qual_local}\tsite:{mut.qual_site}")
+        LOGGER.debug(f"{site}\tlocal:{site.qual_local}\tsite:{site.qual_site}")
+    return sitepairs
+
+
+def call_mutations(
+    query_record: SeqRecord, subject_record: SeqRecord, ignore_ambig=False
+) -> List[SitePair]:
+    """run align and call mutations.
+
+    @return: list of SitePair about mutation sites
+    """
+    hsp = run_blast(query_record, subject_record, ignore_ambig=ignore_ambig)
+    mutations = get_pairs(hsp, ignore_ambig=ignore_ambig, mut_only=True)
+    LOGGER.info(
+        f"{query_record.description}: Total mutation number: {len(mutations)}"
+    )
+    for site in mutations:
+        site.qual_site, site.qual_local = get_quality(
+            site.cf_pos, query_record, flank_base_num=5
+        )
+        LOGGER.debug(f"{site}\tlocal:{site.qual_local}\tsite:{site.qual_site}")
     return mutations

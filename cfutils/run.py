@@ -17,7 +17,7 @@ from typing import List
 
 import matplotlib.pyplot as plt
 
-from cfutils.align import align
+from cfutils.align import call_mutations
 from cfutils.parser import parse_abi, parse_fasta
 from cfutils.show import annotate_mutation, highlight_base, plot_chromatograph
 
@@ -95,7 +95,7 @@ def report_mutation(
 
     query_record = parse_abi(query_ab1_file)
     subject_record = parse_fasta(subject_fasta_file)
-    mutations = align(query_record, subject_record, ignore_ambig=True)
+    mutations = call_mutations(query_record, subject_record, ignore_ambig=True)
     # save tsv file
     with open(os.path.join(output_dir, file_basename + ".tsv"), "w") as f_mut:
         header = [
