@@ -151,6 +151,7 @@ def show_reference(
             alpha=0.85,
             fontsize="xx-large",
             fontweight="bold",
+            clip_on=False,
         )
         if ref_central is not None:
             ref_pos = matched_sitepairs[i].ref_pos - ref_central
@@ -166,6 +167,7 @@ def show_reference(
             alpha=0.85,
             fontsize="medium",
             fontweight="normal",
+            clip_on=False,
         )
     return ax
 
