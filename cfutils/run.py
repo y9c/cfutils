@@ -15,11 +15,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import List
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 from cfutils.align import call_mutations
 from cfutils.parser import parse_abi, parse_fasta
 from cfutils.show import annotate_mutation, highlight_base, plot_chromatograph
+
+mpl.use("Agg")
 
 
 def do_mutation_showing(
@@ -77,7 +80,7 @@ def report_mutation(
     subject_fasta_file,
     output_dir=None,
     file_basename=None,
-    report_mut_info=True,
+    report_align_sites=False,
     report_mut_plot=False,
 ):
     """reprot mutation within region."""
@@ -95,8 +98,22 @@ def report_mutation(
 
     query_record = parse_abi(query_ab1_file)
     subject_record = parse_fasta(subject_fasta_file)
-    mutations = call_mutations(query_record, subject_record, ignore_ambig=True)
-    # save tsv file
+
+    if not report_align_sites:
+        mutations = call_mutations(
+            query_record, subject_record, ignore_ambig=True
+        )
+    else:
+        output_sites_file = os.path.join(
+            output_dir, file_basename + ".aligned_sites.tsv"
+        )
+        mutations = call_mutations(
+            query_record,
+            subject_record,
+            ignore_ambig=True,
+            output_sites=output_sites_file,
+        )
+    # save mutation to tsv file
     with open(os.path.join(output_dir, file_basename + ".tsv"), "w") as f_mut:
         header = [
             "RefLocation",
@@ -111,6 +128,7 @@ def report_mutation(
             f_mut.write(
                 f"{mut.ref_pos}\t{mut.ref_base}\t{mut.cf_pos}\t{mut.cf_base}\t{mut.qual_site}\t{mut.qual_local}\n"
             )
-    if mutations:
+    # show mutation in pdf file
+    if mutations and report_mut_plot:
         output_fig_file = os.path.join(output_dir, file_basename + ".pdf")
         do_mutation_showing(query_record, mutations, output_fig_file)

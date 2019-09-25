@@ -1,8 +1,17 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Copyright © 2019 yech <yech1990@gmail.com>
+# Distributed under terms of the MIT license.
+#
 # Copyright 2011 by Wibowo Arindrarto (w.arindrarto@gmail.com)
 # Revisions copyright 2011 by Peter Cock.
 # This code is part of the Biopython distribution and governed by its
 # license. Please see the LICENSE file that should have been included
 # as part of this package.
+#
+# Created: 2019-08-30 13:51
+
 
 """Bio.SeqIO parser for the ABI format.
 
@@ -306,18 +315,17 @@ def _parse_tag_data(elem_code, elem_num, raw_data):
         # account for different data types
         if elem_code == 2:
             return data.decode()
-        elif elem_code == 10:
+        if elem_code == 10:
             return str(datetime.date(*data))
-        elif elem_code == 11:
+        if elem_code == 11:
             return str(datetime.time(*data[:3]))
-        elif elem_code == 13:
+        if elem_code == 13:
             return bool(data)
-        elif elem_code == 18:
+        if elem_code == 18:
             return data[1:].decode()
-        elif elem_code == 19:
+        if elem_code == 19:
             return data[:-1].decode()
-        else:
-            return data
+        return data
     else:
         return None
 

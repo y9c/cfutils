@@ -73,3 +73,5 @@ import cfutils as cf
 - [ ] return quality score in output
 - [ ] fix issue that selected base is not in the middle
 - [ ] fix plot_chromatograph rendering bug
+
+- [ ] add projection feature to make align and assemble possible   

@@ -20,9 +20,11 @@ from cfutils.run import report_mutation
 @click.option("--debug/--no-debug", default=False)
 def cli(debug):
     """Chromatogram File Utils."""
-    click.echo("Debug mode is %s" % ("on" if debug else "off"))
+    if debug:
+        click.echo("Debug mode is on")
 
 
+# call mutation
 @cli.command()
 @click.option(
     "--query", prompt="QUERY (abi file): ", help="Query file in abi format"
@@ -39,22 +41,28 @@ def cli(debug):
     "--outbase", default=None, required=False, help="Output basename"
 )
 @click.option(
+    "--sites/--no-sites",
+    default=False,
+    help="Generate table to report the aligned sites",
+)
+@click.option(
     "--plot/--no-plot",
     default=False,
-    help="Generate figure of mutation in chromatogram ",
+    help="Generate figure of mutation in chromatogram.",
 )
-def mut(query, subject, outdir, outbase, plot):
+def mut(query, subject, outdir, outbase, sites, plot):
     """do mutation calling, then report in tsv and pdf."""
     report_mutation(
         query_ab1_file=query,
         subject_fasta_file=subject,
         output_dir=outdir,
         file_basename=outbase,
-        report_mut_info=True,
+        report_align_sites=sites,
         report_mut_plot=plot,
     )
 
 
+# test
 @cli.command()
 def test():
     """test."""

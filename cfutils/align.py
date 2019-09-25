@@ -64,11 +64,45 @@ def which_blast():
     return shutil.which("blastn")
 
 
-def run_blast(
-    query_record: SeqRecord,
-    subject_record: SeqRecord,
-    ignore_ambig: bool = False,
-) -> List[SitePair]:
+def parse_blast(output):
+    """parse blastn output.
+
+    @return hsp: HSP (high-scoring pair)
+    """
+    blast_output = StringIO(output.decode())
+
+    try:
+        blast_records: Alignment = NCBIXML.read(blast_output)
+    except ValueError as err:
+        if (
+            blast_output.getvalue() == "BLAST engine error: "
+            "XML formatting is only supported for a database search"
+        ):
+            LOGGER.warning(
+                "Please ensure that you are using the latest version of blastn"
+                "You may need to update your environment's PATH variable"
+            )
+        raise err
+
+    # TODO: check and score alignment result
+    # the second hit?
+    # the alignment score
+    if not blast_records.alignments:
+        LOGGER.info(
+            f"Can not find alignment of the ab1 file with the ref sequence!"
+        )
+        return []
+    alignment = blast_records.alignments[0]
+    # only return the first result
+    hsp = alignment.hsps[0]
+    LOGGER.info(
+        "The length and span of alignment: "
+        f"{hsp.align_length} ({hsp.sbjct_start}-{hsp.sbjct_end})"
+    )
+    return hsp
+
+
+def run_blast(query_record: SeqRecord, subject_record: SeqRecord) -> HSP:
     """run blastn."""
     if not which_blast():
         LOGGER.error("Please ensure blastn is installed and in your PATH")
@@ -96,51 +130,13 @@ def run_blast(
             stdeo, _ = proc.communicate()
             #  LOGGER.debug(stdeo.decode())
 
-    # NOTE: this SitePair object is without qual
-    hsp = parse_blast(stdeo, ignore_ambig=ignore_ambig)
+    # NOTE: this SitePair object is without qual in this step
+    hsp = parse_blast(stdeo)
     return hsp
 
 
-def parse_blast(output, ignore_ambig=False):
-    """parse blastn output.
-
-    @return hsp: HSP (high-scoring pair)
-    """
-    blast_output = StringIO(output.decode())
-
-    try:
-        blast_records: Alignment = NCBIXML.read(blast_output)
-    except ValueError as err:
-        if (
-            blast_output.getvalue()
-            == "BLAST engine error: XML formatting is only supported for a database search"
-        ):
-            LOGGER.warning(
-                "Please ensure that you are using the latest version of blastn"
-                "You may need to update your environment's PATH variable"
-            )
-        raise err
-
-    # TODO: check and score alignment result
-    # the second hit?
-    # the alignment score
-    if not blast_records.alignments:
-        LOGGER.info(
-            f"Can not find alignment of the ab1 file with the ref sequence!"
-        )
-        return []
-    alignment = blast_records.alignments[0]
-    # only return the first result
-    hsp = alignment.hsps[0]
-    return hsp
-
-
-def get_pairs(
-    hsp: HSP, ignore_ambig: bool = False, mut_only: bool = False
-) -> List[SitePair]:
+def get_pairs(hsp: HSP, ignore_ambig: bool = False) -> List[SitePair]:
     """get_pairs for parse SitePair object from hsp object.
-
-    # can be used as `get_muts`, when mut_only == True
 
     NOTE: HSP object is 1-based
     @param: hsp:
@@ -155,8 +151,6 @@ def get_pairs(
 
             if ignore_ambig and is_ambig(sbjct_base):
                 LOGGER.debug(f"Skipping ambiguous base: {sbjct_base}")
-            elif mut_only and query_base == sbjct_base:
-                LOGGER.debug(f"Skipping non mut base: {sbjct_base}")
             else:
                 sitepairs.append(
                     SitePair(sbjct_loc, sbjct_base, query_loc, query_base)
@@ -174,8 +168,6 @@ def get_pairs(
 
             if ignore_ambig and is_ambig(sbjct_base):
                 LOGGER.info("Skipping ambiguous base\n")
-            elif mut_only and query_base == sbjct_base:
-                LOGGER.debug(f"Skipping non mut base: {sbjct_base}")
             else:
                 sitepairs.append(
                     SitePair(sbjct_loc, sbjct_base, query_loc, query_base)
@@ -203,18 +195,16 @@ def get_quality(
     return qual_site, qual_local
 
 
-def align(
+def align_chromatograph(
     query_record: SeqRecord, subject_record: SeqRecord, ignore_ambig=False
 ) -> List[SitePair]:
     """run align.
 
     @return: list of SitePair about all sites
     """
-    hsp = run_blast(query_record, subject_record, ignore_ambig=ignore_ambig)
-    sitepairs = get_pairs(hsp, ignore_ambig=ignore_ambig, mut_only=False)
-    LOGGER.info(
-        f"{query_record.description}: Total aligned number: {len(sitepairs)}"
-    )
+    hsp = run_blast(query_record, subject_record)
+    sitepairs = get_pairs(hsp, ignore_ambig=ignore_ambig)
+    LOGGER.info(f"{query_record.name}: Total aligned number: {len(sitepairs)}")
     for site in sitepairs:
         site.qual_site, site.qual_local = get_quality(
             site.cf_pos, query_record, flank_base_num=5
@@ -224,20 +214,36 @@ def align(
 
 
 def call_mutations(
-    query_record: SeqRecord, subject_record: SeqRecord, ignore_ambig=False
+    query_record: SeqRecord,
+    subject_record: SeqRecord,
+    ignore_ambig=False,
+    output_sites: Optional[str] = None,
 ) -> List[SitePair]:
     """run align and call mutations.
 
     @return: list of SitePair about mutation sites
     """
-    hsp = run_blast(query_record, subject_record, ignore_ambig=ignore_ambig)
-    mutations = get_pairs(hsp, ignore_ambig=ignore_ambig, mut_only=True)
-    LOGGER.info(
-        f"{query_record.description}: Total mutation number: {len(mutations)}"
+    sitepairs = align_chromatograph(
+        query_record, subject_record, ignore_ambig=ignore_ambig
     )
-    for site in mutations:
-        site.qual_site, site.qual_local = get_quality(
-            site.cf_pos, query_record, flank_base_num=5
-        )
-        LOGGER.debug(f"{site}\tlocal:{site.qual_local}\tsite:{site.qual_site}")
+    mutations = []
+    if output_sites is None:
+        for site in sitepairs:
+            if site.ref_base != site.cf_base:
+                mutations.append(site)
+                LOGGER.debug(f"Site ({site}) is with mutation!")
+    else:
+        with open(output_sites, "w") as f_sites:
+            f_sites.write(f"# {len(sitepairs)} aligned sites in total\n")
+            for site in sitepairs:
+                f_sites.write(
+                    f"{site.ref_pos}\t{site.ref_base}\t{site.cf_pos}\t{site.cf_base}\t{site.qual_site}\t{site.qual_local}\n"
+                )
+                if site.ref_base != site.cf_base:
+                    mutations.append(site)
+                    LOGGER.debug(f"Site ({site}) is with mutation!")
+
+    LOGGER.info(
+        f"{query_record.name}: Total mutation number: {len(mutations)}"
+    )
     return mutations
