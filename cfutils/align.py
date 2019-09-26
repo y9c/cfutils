@@ -216,8 +216,8 @@ def align_chromatograph(
 def call_mutations(
     query_record: SeqRecord,
     subject_record: SeqRecord,
-    ignore_ambig=False,
-    output_sites: Optional[str] = None,
+    ignore_ambig: bool = False,
+    report_all_sites: bool = False,
 ) -> List[SitePair]:
     """run align and call mutations.
 
@@ -227,21 +227,14 @@ def call_mutations(
         query_record, subject_record, ignore_ambig=ignore_ambig
     )
     mutations = []
-    if output_sites is None:
-        for site in sitepairs:
+    for site in sitepairs:
+        if report_all_sites:
+            mutations.append(site)
+            LOGGER.debug(f"Site ({site}) is reported!")
+        else:
             if site.ref_base != site.cf_base:
                 mutations.append(site)
                 LOGGER.debug(f"Site ({site}) is with mutation!")
-    else:
-        with open(output_sites, "w") as f_sites:
-            f_sites.write(f"# {len(sitepairs)} aligned sites in total\n")
-            for site in sitepairs:
-                f_sites.write(
-                    f"{site.ref_pos}\t{site.ref_base}\t{site.cf_pos}\t{site.cf_base}\t{site.qual_site}\t{site.qual_local}\n"
-                )
-                if site.ref_base != site.cf_base:
-                    mutations.append(site)
-                    LOGGER.debug(f"Site ({site}) is with mutation!")
 
     LOGGER.info(
         f"{query_record.name}: Total mutation number: {len(mutations)}"

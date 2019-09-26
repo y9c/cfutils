@@ -41,23 +41,23 @@ def cli(debug):
     "--outbase", default=None, required=False, help="Output basename"
 )
 @click.option(
-    "--sites/--no-sites",
+    "--aligned/--mutated",
     default=False,
-    help="Generate table to report the aligned sites",
+    help="Report all aligned sites or mutation sites only",
 )
 @click.option(
     "--plot/--no-plot",
     default=False,
     help="Generate figure of mutation in chromatogram.",
 )
-def mut(query, subject, outdir, outbase, sites, plot):
+def mut(query, subject, outdir, outbase, aligned, plot):
     """do mutation calling, then report in tsv and pdf."""
     report_mutation(
         query_ab1_file=query,
         subject_fasta_file=subject,
         output_dir=outdir,
         file_basename=outbase,
-        report_align_sites=sites,
+        report_all_sites=aligned,
         report_mut_plot=plot,
     )
 

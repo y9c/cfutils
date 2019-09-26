@@ -80,7 +80,7 @@ def report_mutation(
     subject_fasta_file,
     output_dir=None,
     file_basename=None,
-    report_align_sites=False,
+    report_all_sites=False,
     report_mut_plot=False,
 ):
     """reprot mutation within region."""
@@ -99,21 +99,13 @@ def report_mutation(
     query_record = parse_abi(query_ab1_file)
     subject_record = parse_fasta(subject_fasta_file)
 
-    if not report_align_sites:
-        mutations = call_mutations(
-            query_record, subject_record, ignore_ambig=True
-        )
-    else:
-        output_sites_file = os.path.join(
-            output_dir, file_basename + ".aligned_sites.tsv"
-        )
-        mutations = call_mutations(
-            query_record,
-            subject_record,
-            ignore_ambig=True,
-            output_sites=output_sites_file,
-        )
-    # save mutation to tsv file
+    sites = call_mutations(
+        query_record,
+        subject_record,
+        ignore_ambig=True,
+        report_all_sites=report_all_sites,
+    )
+    # save mutation / alignment to tsv file
     with open(os.path.join(output_dir, file_basename + ".tsv"), "w") as f_mut:
         header = [
             "RefLocation",
@@ -124,10 +116,17 @@ def report_mutation(
             "LocalQual",
         ]
         f_mut.write("\t".join(header) + "\n")
-        for mut in mutations:
+        for site in sites:
             f_mut.write(
-                f"{mut.ref_pos}\t{mut.ref_base}\t{mut.cf_pos}\t{mut.cf_base}\t{mut.qual_site}\t{mut.qual_local}\n"
+                f"{site.ref_pos}\t{site.ref_base}\t{site.cf_pos}\t{site.cf_base}\t{site.qual_site}\t{site.qual_local}\n"
             )
+
+    # do forget to filter mutation for plot
+    if report_all_sites:
+        mutations = [s for s in sites if s.ref_base != s.cf_base]
+    else:
+        mutations = sites
+
     # show mutation in pdf file
     if mutations and report_mut_plot:
         output_fig_file = os.path.join(output_dir, file_basename + ".pdf")
