@@ -91,10 +91,19 @@ def parse_blast(output):
         LOGGER.info(
             f"Can not find alignment of the ab1 file with the ref sequence!"
         )
-        return []
+        #  exit if not aligned
+        #  return []
+        sys.exit(0)
     alignment = blast_records.alignments[0]
     # only return the first result
     hsp = alignment.hsps[0]
+    if hsp.align_length < 30:
+        LOGGER.info(
+            f"alignment of the ab1 file with the ref sequence is < 30bp!"
+        )
+        #  exit if alignment is not short
+        #  return []
+        sys.exit(1)
     LOGGER.info(
         "The length and span of alignment: "
         f"{hsp.align_length} ({hsp.sbjct_start}-{hsp.sbjct_end})"
@@ -235,8 +244,8 @@ def call_mutations(
             if site.ref_base != site.cf_base:
                 mutations.append(site)
                 LOGGER.debug(f"Site ({site}) is with mutation!")
-
-    LOGGER.info(
-        f"{query_record.name}: Total mutation number: {len(mutations)}"
-    )
+    if not report_all_sites:
+        LOGGER.info(
+            f"{query_record.name}: Total mutation number: {len(mutations)}"
+        )
     return mutations

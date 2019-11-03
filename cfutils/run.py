@@ -22,7 +22,11 @@ from cfutils.align import call_mutations
 from cfutils.parser import parse_abi, parse_fasta
 from cfutils.show import annotate_mutation, highlight_base, plot_chromatograph
 
+from .utils import get_logger
+
 mpl.use("Agg")
+
+LOGGER = get_logger(__name__)
 
 
 def do_mutation_showing(
@@ -124,6 +128,9 @@ def report_mutation(
     # do forget to filter mutation for plot
     if report_all_sites:
         mutations = [s for s in sites if s.ref_base != s.cf_base]
+        LOGGER.info(
+            f"{query_record.name}: Mutation number for plot: {len(mutations)}"
+        )
     else:
         mutations = sites
 
