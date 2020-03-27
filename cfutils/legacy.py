@@ -142,9 +142,14 @@ def classify(folder_name, company_format, corresponding_table):
                 or name[-4:] == ".abi"
             ):
                 if company_format == "invitrogen" and len(name.split(".")) > 5:
-                    ORDERID, RUNID, SAMPLENAME, PRIMERNAME, REACTIONID, FILETYPE = name.split(
-                        "."
-                    )
+                    (
+                        ORDERID,
+                        RUNID,
+                        SAMPLENAME,
+                        PRIMERNAME,
+                        REACTIONID,
+                        FILETYPE,
+                    ) = name.split(".")
                     ref_name = map_table[SAMPLENAME]
                     if ref_name in group_dic_of_file_path:
                         group_dic_of_file_path[ref_name].append(file_path)

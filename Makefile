@@ -1,11 +1,11 @@
 .PHONY: init test
 
 init:
-	pipenv install
+	peotry install --no-dev
 
 dev:
-	pipenv install -d
-	pipenv shell
+	peotry install
+	peotry shell
 
 test:
 	python -m unittest test.test_basic
