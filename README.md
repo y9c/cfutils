@@ -1,5 +1,10 @@
 # cfutils
 
+[![Readthedocs](https://readthedocs.org/projects/cfutils/badge/?version=latest)](https://cfutils.readthedocs.io/en/latest/?badge=latest)
+[![Build Status](https://img.shields.io/travis/yech1990/cfutils.svg)](https://travis-ci.org/yech1990/cfutils)
+[![Pypi Releases](https://img.shields.io/pypi/v/cfutils.svg)](https://pypi.python.org/pypi/cfutils)
+[![Downloads](https://pepy.tech/badge/cfutils)](https://pepy.tech/project/cfutils)
+
 **Chromatogram File Utils**
 
 For Sanger sequencing data visualizing, alignment, mutation calling, and trimming etc.
@@ -18,10 +23,10 @@ cfutils mut --query ./data/B5-M13R_B07.ab1 --subject ./data/ref.fa --outdir ./da
 
 ### form pypi
 
-*(use this way ONLY, if you don't know what's going on)*
+_(use this way ONLY, if you don't know what's going on)_
 
 ```bash
-pip install cfutils
+pip install --user cfutils
 ```
 
 ### manipulate the source code
@@ -29,7 +34,7 @@ pip install cfutils
 - clone from github
 
 ```bash
-git clone git@github.com:yech1990/cfutils.git 
+git clone git@github.com:yech1990/cfutils.git
 ```
 
 - install the dependence
@@ -74,4 +79,4 @@ import cfutils as cf
 - [ ] fix issue that selected base is not in the middle
 - [ ] fix plot_chromatograph rendering bug
 
-- [ ] add projection feature to make align and assemble possible   
+- [ ] add projection feature to make align and assemble possible
