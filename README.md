@@ -1,7 +1,7 @@
 # cfutils
 
 [![Readthedocs](https://readthedocs.org/projects/cfutils/badge/?version=latest)](https://cfutils.readthedocs.io/en/latest/?badge=latest)
-[![Build Status](https://img.shields.io/travis/yech1990/cfutils.svg)](https://travis-ci.org/yech1990/cfutils)
+[![Build Status](https://img.shields.io/travis/y9c/cfutils.svg)](https://travis-ci.org/y9c/cfutils)
 [![Pypi Releases](https://img.shields.io/pypi/v/cfutils.svg)](https://pypi.python.org/pypi/cfutils)
 [![Downloads](https://pepy.tech/badge/cfutils)](https://pepy.tech/project/cfutils)
 
@@ -11,7 +11,7 @@ For Sanger sequencing data visualizing, alignment, mutation calling, and trimmin
 
 ## Demo
 
-![plot chromatogram with mutation](https://raw.githubusercontent.com/yech1990/cfutils/master/data/plot.png)
+![plot chromatogram with mutation](https://raw.githubusercontent.com/y9c/cfutils/master/data/plot.png)
 
 > command to generate the demo above
 
@@ -34,7 +34,7 @@ pip install --user cfutils
 - clone from github
 
 ```bash
-git clone git@github.com:yech1990/cfutils.git
+git clone git@github.com:y9c/cfutils.git
 ```
 
 - install the dependence
