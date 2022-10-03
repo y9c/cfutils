@@ -60,10 +60,3 @@ def mut(query, subject, outdir, outbase, aligned, plot):
         report_all_sites=aligned,
         report_mut_plot=plot,
     )
-
-
-# test
-@cli.command()
-def test():
-    """test."""
-    click.echo("Testing...")

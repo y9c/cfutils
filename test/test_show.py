@@ -9,9 +9,9 @@ from cfutils.parser import parse_abi, parse_fasta
 from cfutils.show import highlight_base, plot_chromatograph
 
 try:
-    assert sys.version_info > (3, 6)
+    assert sys.version_info > (3, 8)
 except AssertionError:
-    raise RuntimeError("cfutils requires Python 3.6+!")
+    raise RuntimeError("cfutils requires Python 3.8+!")
 
 
 class TestShowFunc(unittest.TestCase):

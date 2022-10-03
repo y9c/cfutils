@@ -26,8 +26,7 @@ import datetime
 import struct
 from os.path import basename
 
-from Bio import Alphabet, SeqIO
-from Bio.Alphabet.IUPAC import ambiguous_dna, unambiguous_dna
+from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
@@ -91,20 +90,8 @@ _HEADFMT = ">H4sI2H3I"
 _DIRFMT = ">4sI2H4I"
 
 
-def abi_iterator(handle, alphabet=None):
+def abi_iterator(handle):
     """Iterator for the Abi file format."""
-    # raise exception is alphabet is not dna
-    if alphabet is not None:
-        if isinstance(
-            Alphabet._get_base_alphabet(alphabet), Alphabet.ProteinAlphabet
-        ):
-            raise ValueError(
-                "Invalid alphabet, ABI files do not hold proteins."
-            )
-        if isinstance(
-            Alphabet._get_base_alphabet(alphabet), Alphabet.RNAAlphabet
-        ):
-            raise ValueError("Invalid alphabet, ABI files do not hold RNA.")
 
     # raise exception if handle mode is not 'rb'
     if hasattr(handle, "mode"):
@@ -140,12 +127,6 @@ def abi_iterator(handle, alphabet=None):
         # PBAS2 is base-called sequence
         if key == "PBAS2":
             seq = tag_data
-            ambigs = "KYWMRS"
-            if alphabet is None:
-                if set(seq).intersection(ambigs):
-                    alphabet = ambiguous_dna
-                else:
-                    alphabet = unambiguous_dna
         # PCON2 is quality values of base-called sequence
         elif key == "PCON2":
             qual = [ord(val) for val in tag_data]
@@ -182,7 +163,7 @@ def abi_iterator(handle, alphabet=None):
     #  file_name = ""
 
     record = SeqRecord(
-        Seq(seq, alphabet),
+        Seq(seq),
         id=sample_id,
         name=file_name,
         description="",

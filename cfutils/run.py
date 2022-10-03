@@ -24,7 +24,7 @@ from cfutils.show import annotate_mutation, highlight_base, plot_chromatograph
 
 from .utils import get_logger
 
-mpl.use("Agg", warn=False, force=True)
+mpl.use("Agg", force=True)
 
 LOGGER = get_logger(__name__)
 

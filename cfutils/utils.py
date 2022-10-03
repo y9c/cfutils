@@ -33,3 +33,20 @@ def get_logger(name: str) -> logging.Logger:
 
 
 LOGGER: logging.Logger = get_logger(__name__)
+
+
+def evenchunks(string, chunksize=10):
+    out = []
+    for i in range(0, len(string), chunksize):
+        end = i + chunksize
+        out.append(string[i:end])
+    return out
+
+
+def chunked_lines(string, chunksize=10, chunks_per_line=5, spacer=" "):
+    chunks = evenchunks(string, chunksize)
+    lines = []
+    while chunks:
+        lines.append(spacer.join(chunks[:chunks_per_line]))
+        del chunks[:chunks_per_line]
+    return lines
