@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "cfutils"
-version = "0.0.0.dev52"
+version = "0.0.0.dev54"
 description = "Chromatogram File Utils"
 authors = ["Ye Chang <yech1990@gmail.com>"]
 license = "MIT"
@@ -18,7 +18,7 @@ python = "^3.8"
 Click = "^8.0.0"
 biopython = "^1.78"
 matplotlib = "^3.0.0"
-parasail = "^1.3.3"
+ssw = "^0.4.1"
 
 [tool.poetry.dev-dependencies]
 twine = "^3.1.1"

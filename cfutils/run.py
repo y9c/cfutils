@@ -106,7 +106,6 @@ def report_mutation(
     sites = call_mutations(
         query_record,
         subject_record,
-        ignore_ambig=True,
         report_all_sites=report_all_sites,
     )
     # save mutation / alignment to tsv file
