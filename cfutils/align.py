@@ -50,7 +50,13 @@ class SitePair:
 
 
 try:
-    from parasail import blosum62, nw_banded, nw_trace_scan_sat
+    from parasail import (
+        blosum62,
+        nw_banded,
+        nw_trace_scan_sat,
+        ssw,
+        sw_trace_scan_sat,
+    )
 except ImportError:
     import warnings
 
@@ -59,7 +65,7 @@ except ImportError:
     )
 
 
-def align_seqs(query, target, gop=5, gep=1):
+def align_seqs(query, target, gop=5, gep=10):
     """basic parasail global alignment of two sequences result is wrapped in
     ParasailAlignment Class."""
     query = str(query)
@@ -103,6 +109,10 @@ class ParasailAlignment:
         self.target = result.query
         self.query = result.ref
         self.score = result.score
+        self.start_target = 0
+        self.start_query = 0
+        self.end_target = result.end_query
+        self.end_query = result.end_ref
         self._mutations = None
 
     def _tuples_from_cigar(self):
@@ -191,8 +201,8 @@ class ParasailAlignment:
         return aligned_sequence
 
     def _get_aligned_tuple(self):
-        self.query
-        self.target
+        print(self.query)
+        print(self.target)
         print(self.cigar_tuple)
         # assume zero based
         # gap_type is 'D' when returning aligned query sequence
@@ -401,8 +411,9 @@ def call_mutations(
     @return: list of SitePair about mutation sites
     """
     print(".....\n\n")
+    print(query_record.seq, subject_record)
     aa = align_seqs(query_record.seq, subject_record.seq)
-    aa.print_alignment()
+    print(aa)
     aa._get_aligned_tuple()
     sitepairs = align_chromatograph(
         query_record, subject_record, ignore_ambig=ignore_ambig
