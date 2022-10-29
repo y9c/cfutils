@@ -136,9 +136,7 @@ def show_reference(
     @param seq: input SeqRecord of ref
     """
 
-    sitepairs = align_chromatograph(
-        query_record, subject_record, ignore_ambig=True
-    )
+    sitepairs = align_chromatograph(query_record, subject_record)
     sitepairs_indexing = {s.cf_pos: s for s in sitepairs}
     cf_sites = [int(i.get_text()) for i in ax.get_xticklabels()]
     matched_sitepairs = [sitepairs_indexing[pos] for pos in cf_sites]

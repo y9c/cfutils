@@ -24,7 +24,7 @@ class TestAlignFunc(unittest.TestCase):
         seq = parse_abi(input_file)
 
         subject_fasta = "./data/3kref.fa"
-        align_chromatograph(seq, subject_fasta, ignore_ambig=True)
+        align_chromatograph(seq, subject_fasta)
         input_file.close()
 
 
