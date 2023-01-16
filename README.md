@@ -17,6 +17,43 @@ For Sanger sequencing data visualizing, alignment, mutation calling, and trimmin
 cfutils mut --query ./data/B5-M13R_B07.ab1 --subject ./data/ref.fa --outdir ./data/ --plot
 ```
 
+## How to use?
+
+- You can have mutation detection and visualization in one step using the command line.
+
+```bash
+cfutils mut --help
+```
+
+- You can also integrate the result matplotlib figures and use it as a python module.
+
+An example:
+
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+
+from cfutils.parser import parse_abi
+from cfutils.show import plot_chromatograph
+
+seq = parse_abi("./data/B5-M13R_B07.ab1")
+peaks = seq.annotations["peak positions"][100:131]
+
+fig, axes = plt.subplots(2, 1, figsize=(12, 6), sharex=True)
+plot_chromatograph(
+    seq,
+    region=(100, 130),
+    ax=axes[0],
+    show_bases=True,
+    show_positions=True,
+    color_map=dict(zip("ATGC", ["C0", "C2", "C1", "C4"])),
+)
+axes[1].bar(peaks, np.random.randn(len(peaks)), color="0.66")
+plt.show()
+```
+
+![plot chromatogram in_matplotlib](https://raw.githubusercontent.com/y9c/cfutils/master/data/matplotlib_example.png)
+
 ## How to install?
 
 ### form pypi
@@ -45,20 +82,6 @@ make init
 
 ```bash
 make test
-```
-
-## How to use?
-
-- in the command line
-
-```bash
-cfutils mut --help
-```
-
-- or as a python module
-
-```python
-import cfutils as cf
 ```
 
 ## ChangeLog

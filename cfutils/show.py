@@ -21,6 +21,7 @@ from typing import Optional, Tuple
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from Bio.SeqRecord import SeqRecord
+from matplotlib.axes import Axes
 
 from .align import SitePair, align_chromatograph
 from .utils import get_logger
@@ -29,12 +30,21 @@ LOGGER = get_logger(__name__)
 
 
 def plot_chromatograph(
-    seq: SeqRecord, region: Tuple[int, int] = None, ax: mpl.axes = None
-) -> plt.axes:
+    seq: SeqRecord,
+    region: Optional[Tuple[int, int]] = None,
+    ax: Optional[Axes] = None,
+    color_map: Optional[dict] = None,
+    show_bases: bool = True,
+    show_positions: bool = True,
+) -> Axes:
     """Plot Sanger chromatograph.
 
     region: include both start and end (1-based)
     """
+    if ax is None:
+        ax = plt.gca()
+        # _, ax = plt.subplots(1, 1, figsize=(16, 6))
+
     if seq is None:
         return ax
 
@@ -45,12 +55,11 @@ def plot_chromatograph(
         region_start = max(region[0], 0)
         region_end = min(region[1], len(seq) - 1)
 
-    if ax is None:
-        _, ax = plt.subplots(1, 1, figsize=(16, 6))
-
     _colors = defaultdict(
         lambda: "purple", {"A": "g", "C": "b", "G": "k", "T": "r"}
     )
+    if color_map is not None:
+        _colors.update(color_map)
 
     # Get signals
     peaks = seq.annotations["peak positions"]
@@ -90,26 +99,34 @@ def plot_chromatograph(
         )
 
     # Plot bases at peak positions
-    for i, peak in enumerate(peaks):
-        #  LOGGER.debug(f"{i}, {peak}, {seq[i]}, {xlim_left + i}")
-        ax.text(
-            peak,
-            -0.11,
-            seq[i],
-            color=_colors[seq[i]],
-            va="center",
-            ha="center",
-            alpha=0.66,
-            fontsize="x-large",
-            fontweight="bold",
-        )
+    if show_bases:
+        for i, peak in enumerate(peaks):
+            #  LOGGER.debug(f"{i}, {peak}, {seq[i]}, {xlim_left + i}")
+            ax.text(
+                peak,
+                -0.11,
+                seq[i],
+                color=_colors[seq[i]],
+                va="center",
+                ha="center",
+                alpha=0.66,
+                fontsize="x-large",
+                fontweight="bold",
+            )
+        ax.set_ylim(bottom=-0.15, top=1.05)
+    else:
+        ax.set_ylim(bottom=-0.05, top=1.05)
 
-    ax.set_ylim(bottom=-0.15, top=1.05)
     #  peaks[0] - max(2, 0.02 * (peaks[-1] - peaks[0])),
     #  right=peaks[-1] + max(2, 0.02 * (peaks[-1] - peaks[0])),
     ax.set_xlim(xlim_left + 0.5, xlim_right)
-    ax.set_xticks(peaks)
-    ax.set_xticklabels(list(range(region_start + 1, region_end + 2)))
+
+    if show_positions:
+        ax.set_xticks(peaks)
+        ax.set_xticklabels(list(range(region_start + 1, region_end + 2)))
+    else:
+        ax.set_xticks([])
+
     # hide y axis
     ax.set_yticklabels([])
     ax.get_yaxis().set_visible(False)
@@ -127,9 +144,9 @@ def plot_chromatograph(
 def show_reference(
     query_record: SeqRecord,
     subject_record: SeqRecord,
-    ax: mpl.axes,
+    ax: Axes,
     ref_central: Optional[int] = None,
-) -> mpl.axes:
+) -> Axes:
     """show the reference of the chromatograph.
 
     design: if location is not proviode, do the alignment first
@@ -173,8 +190,8 @@ def show_reference(
 
 
 def highlight_base(
-    pos_highlight: int, seq: SeqRecord, ax: mpl.axes, passed_filter=True
-) -> mpl.axes:
+    pos_highlight: int, seq: SeqRecord, ax: Axes, passed_filter=True
+) -> Axes:
     """Highlight the area around a peak with a rectangle."""
 
     peaks = seq.annotations["peak positions"]
@@ -211,7 +228,7 @@ def highlight_base(
     return ax
 
 
-def annotate_mutation(mut: SitePair, seq: SeqRecord, ax) -> mpl.axes:
+def annotate_mutation(mut: SitePair, seq: SeqRecord, ax) -> Axes:
     """Annotate mutation pattern chromatograph position."""
     peaks = seq.annotations["peak positions"]
     peak = peaks[mut.cf_pos - 1]
