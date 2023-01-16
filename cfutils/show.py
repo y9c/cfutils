@@ -94,9 +94,8 @@ def plot_chromatograph(
     trmax = max(map(max, traces_y))
     for base in bases:
         if show_rc:
-            chanel_index = bases.index(reverse_complement(base))
-        else:
-            chanel_index = bases.index(base)
+            base_rc = reverse_complement(base)
+        chanel_index = bases.index(base_rc)
         trace_y = [1.0 * ci / trmax for ci in traces_y[chanel_index]]
         ax.plot(trace_x, trace_y, color=_colors[base], lw=2, label=base)
         ax.fill_between(
@@ -107,11 +106,12 @@ def plot_chromatograph(
     if show_bases:
         for i, peak in enumerate(peaks):
             #  LOGGER.debug(f"{i}, {peak}, {seq[i]}, {xlim_left + i}")
+            b = reverse_complement(seq[i]) if show_rc else seq[i]
             ax.text(
                 peak,
                 -0.11,
-                reverse_complement(seq[i]) if show_rc else seq[i],
-                color=_colors[seq[i]],
+                b,
+                color=_colors[b],
                 va="center",
                 ha="center",
                 alpha=0.66,
