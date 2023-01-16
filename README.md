@@ -86,6 +86,7 @@ make test
 
 ## ChangeLog
 
+- Reverse completement the chromatogram file. (Inspired by Snapgene)
 - build as python package for pypi
 - fix bug that highlighting wrong base
 - replace blastn with buildin python aligner

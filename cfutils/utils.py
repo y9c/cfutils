@@ -50,3 +50,8 @@ def chunked_lines(string, chunksize=10, chunks_per_line=5, spacer=" "):
         lines.append(spacer.join(chunks[:chunks_per_line]))
         del chunks[:chunks_per_line]
     return lines
+
+
+def reverse_complement(dna):
+    "Return the reverse complement of a DNA sequence."
+    return dna.translate(str.maketrans("ATCG", "TAGC"))[::-1]

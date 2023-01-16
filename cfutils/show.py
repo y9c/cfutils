@@ -24,7 +24,7 @@ from Bio.SeqRecord import SeqRecord
 from matplotlib.axes import Axes
 
 from .align import SitePair, align_chromatograph
-from .utils import get_logger
+from .utils import get_logger, reverse_complement
 
 LOGGER = get_logger(__name__)
 
@@ -36,6 +36,7 @@ def plot_chromatograph(
     color_map: Optional[dict] = None,
     show_bases: bool = True,
     show_positions: bool = True,
+    show_rc: bool = False,
 ) -> Axes:
     """Plot Sanger chromatograph.
 
@@ -92,7 +93,11 @@ def plot_chromatograph(
     # Plot traces
     trmax = max(map(max, traces_y))
     for base in bases:
-        trace_y = [1.0 * ci / trmax for ci in traces_y[bases.index(base)]]
+        if show_rc:
+            chanel_index = bases.index(reverse_complement(base))
+        else:
+            chanel_index = bases.index(base)
+        trace_y = [1.0 * ci / trmax for ci in traces_y[chanel_index]]
         ax.plot(trace_x, trace_y, color=_colors[base], lw=2, label=base)
         ax.fill_between(
             trace_x, 0, trace_y, facecolor=_colors[base], alpha=0.125
@@ -105,7 +110,7 @@ def plot_chromatograph(
             ax.text(
                 peak,
                 -0.11,
-                seq[i],
+                reverse_complement(seq[i]) if show_rc else seq[i],
                 color=_colors[seq[i]],
                 va="center",
                 ha="center",
@@ -126,6 +131,9 @@ def plot_chromatograph(
         ax.set_xticklabels(list(range(region_start + 1, region_end + 2)))
     else:
         ax.set_xticks([])
+
+    if show_rc:
+        ax.invert_xaxis()
 
     # hide y axis
     ax.set_yticklabels([])
