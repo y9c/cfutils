@@ -7,7 +7,7 @@
 # Created: 2019-05-27 20:19
 
 
-"""align two sequence with ref by blast.
+"""align query sequence with ref.
 
 Use 1-based for all the position
 """
