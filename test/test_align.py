@@ -23,7 +23,7 @@ class TestAlignFunc(unittest.TestCase):
         input_file = resource_stream(__name__, "../data/C5-3k_SEQ_R_A04.ab1")
         seq = parse_abi(input_file)
 
-        subject_fasta = "./data/3kref.fa"
+        subject_fasta = "./data/ref.fa"
         align_chromatograph(seq, subject_fasta)
         input_file.close()
 

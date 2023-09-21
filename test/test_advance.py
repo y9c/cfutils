@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""test for cfutils"""
+"""test for cfutils."""
 
 import sys
 import unittest
@@ -7,7 +7,7 @@ import unittest
 #  from cfutils.align import align
 #  from cfutils.show import highlight_base, plot_chromatograph
 #  from cfutils.parser import parse_abi, parse_fasta
-from cfutils.run import do_mutation_calling
+from cfutils.run import report_mutation
 
 try:
     assert sys.version_info > (3, 6)
@@ -16,16 +16,16 @@ except AssertionError:
 
 
 class TestFunc(unittest.TestCase):
-    """Test cfutils/align.py"""
+    """Test cfutils/align.py."""
 
     def test_plot_mutation(self):
-        """Test plot mutation region"""
-        do_mutation_calling(
+        """Test plot mutation region."""
+        report_mutation(
             query_ab1_file="./data/B5-M13R_B07.ab1",
-            subject_fasta_file="./data/3kref.fa",
+            subject_fasta_file="./data/ref.fa",
             output_dir=None,
             file_basename=None,
-            report_mut_info=True,
+            report_all_sites=True,
             report_mut_plot=True,
         )
 

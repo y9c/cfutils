@@ -20,7 +20,7 @@ class TestShowFunc(unittest.TestCase):
     def test_plot_chromatograph(self):
         """Test plot."""
         query_record = parse_abi("./data/B5-M13R_B07.ab1")
-        subject_record = parse_fasta("./data/3kref.fa")
+        subject_record = parse_fasta("./data/ref.fa")
 
         import matplotlib.pyplot as plt
 
