@@ -191,9 +191,9 @@ def _abi_parse_header(header, handle):
         # add directory offset to tuple
         # to handle directories with data size <= 4 bytes
         handle.seek(start)
-        dir_entry = struct.unpack(
-            _DIRFMT, handle.read(struct.calcsize(_DIRFMT))
-        ) + (start,)
+        dir_entry = struct.unpack(_DIRFMT, handle.read(struct.calcsize(_DIRFMT))) + (
+            start,
+        )
         index += 1
         # only parse desired dirs
         key = dir_entry[0].decode()
@@ -212,9 +212,7 @@ def _abi_parse_header(header, handle):
                 data_offset = tag_offset + 20
             handle.seek(data_offset)
             data = handle.read(data_size)
-            yield tag_name, tag_number, _parse_tag_data(
-                elem_code, elem_num, data
-            )
+            yield tag_name, tag_number, _parse_tag_data(elem_code, elem_num, data)
 
 
 def _abi_trim(seq_record: SeqRecord) -> SeqRecord:
@@ -328,7 +326,7 @@ def trim_and_rescale_trace(seq):
     x = [1.0 * i / step for i in range(len(traces[0]))]
 
     seq.annotations["peak positions"] = peaks
-    for (i, trace) in enumerate(traces, 1):
+    for i, trace in enumerate(traces, 1):
         seq.annotations["channel " + str(i)] = trace
     seq.annotations["trace_x"] = x
     return seq
@@ -349,7 +347,7 @@ def rescale_trace(seq: SeqRecord) -> SeqRecord:
     x = [1.0 * i / step for i in range(len(traces[0]))]
 
     seq.annotations["peak positions"] = peaks
-    for (i, trace) in enumerate(traces, 1):
+    for i, trace in enumerate(traces, 1):
         seq.annotations["channel " + str(i)] = trace
     seq.annotations["trace_x"] = x
     return seq

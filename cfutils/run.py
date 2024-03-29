@@ -29,9 +29,7 @@ mpl.use("Agg", force=True)
 LOGGER = get_logger(__name__)
 
 
-def do_mutation_showing(
-    query_record, mutations: List, output_fig_file: str
-) -> None:
+def do_mutation_showing(query_record, mutations: List, output_fig_file: str) -> None:
     """report mutations in pdf format."""
     min_base_qual = 50
     min_local_qual = 20
@@ -72,9 +70,7 @@ def do_mutation_showing(
                 and mut.qual_local is not None
                 and mut.qual_local >= min_local_qual
             )
-            highlight_base(
-                mut.cf_pos, query_record, ax, passed_filter=base_passed
-            )
+            highlight_base(mut.cf_pos, query_record, ax, passed_filter=base_passed)
             annotate_mutation(mut, query_record, ax)
     fig.savefig(output_fig_file, bbox_inches="tight")
 
@@ -127,9 +123,7 @@ def report_mutation(
     # do forget to filter mutation for plot
     if report_all_sites:
         mutations = [s for s in sites if s.ref_base != s.cf_base]
-        LOGGER.info(
-            f"{query_record.name}: Mutation number for plot: {len(mutations)}"
-        )
+        LOGGER.info(f"{query_record.name}: Mutation number for plot: {len(mutations)}")
     else:
         mutations = sites
 

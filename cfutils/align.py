@@ -35,9 +35,7 @@ class SitePair:
     qual_local: Optional[int] = None
 
     def __repr__(self):
-        return (
-            f"{self.ref_base}({self.ref_pos})->{self.cf_base}({self.cf_pos})"
-        )
+        return f"{self.ref_base}({self.ref_pos})->{self.cf_base}({self.cf_pos})"
 
 
 def run_align(reference: str, query: str) -> List[SitePair]:
@@ -62,9 +60,7 @@ def run_align(reference: str, query: str) -> List[SitePair]:
     return results
 
 
-def get_quality(
-    pos: int, query_record: SeqRecord, flank_base_num=0
-) -> Tuple[int, int]:
+def get_quality(pos: int, query_record: SeqRecord, flank_base_num=0) -> Tuple[int, int]:
     """get quality of site and local region.
 
     change flank_base_num to number gt 0 to get mean qual within region
@@ -117,7 +113,5 @@ def call_mutations(
                 mutations.append(site)
                 LOGGER.debug(f"Site ({site}) is with mutation!")
     if not report_all_sites:
-        LOGGER.info(
-            f"{query_record.name}: Total mutation number: {len(mutations)}"
-        )
+        LOGGER.info(f"{query_record.name}: Total mutation number: {len(mutations)}")
     return mutations

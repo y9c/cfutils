@@ -12,7 +12,6 @@ wrap cfutils into cli app
 """
 
 import click
-
 from cfutils.run import report_mutation
 
 
@@ -26,20 +25,14 @@ def cli(debug):
 
 # call mutation
 @cli.command()
-@click.option(
-    "--query", prompt="QUERY (abi file): ", help="Query file in abi format"
-)
+@click.option("--query", prompt="QUERY (abi file): ", help="Query file in abi format")
 @click.option(
     "--subject",
     prompt="SUBJECT (fasta file): ",
     help="Subject file in fasta format as ref",
 )
-@click.option(
-    "--outdir", default=None, required=False, help="Output directory"
-)
-@click.option(
-    "--outbase", default=None, required=False, help="Output basename"
-)
+@click.option("--outdir", default=None, required=False, help="Output directory")
+@click.option("--outbase", default=None, required=False, help="Output basename")
 @click.option(
     "--aligned/--mutated",
     default=False,

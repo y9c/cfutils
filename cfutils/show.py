@@ -5,7 +5,8 @@
 #
 # Distributed under terms of the MIT license.
 
-"""Chromatogram File Utils.
+"""
+Chromatogram File Utils.
 
 show alignment with matplotlib
 
@@ -38,7 +39,8 @@ def plot_chromatograph(
     show_positions: bool = True,
     show_rc: bool = False,
 ) -> Axes:
-    """Plot Sanger chromatograph.
+    """
+    Plot Sanger chromatograph.
 
     region: include both start and end (1-based)
     """
@@ -56,9 +58,7 @@ def plot_chromatograph(
         region_start = max(region[0], 0)
         region_end = min(region[1], len(seq) - 1)
 
-    _colors = defaultdict(
-        lambda: "purple", {"A": "g", "C": "b", "G": "k", "T": "r"}
-    )
+    _colors = defaultdict(lambda: "purple", {"A": "g", "C": "b", "G": "k", "T": "r"})
     if color_map is not None:
         _colors.update(color_map)
 
@@ -93,14 +93,12 @@ def plot_chromatograph(
     # Plot traces
     trmax = max(map(max, traces_y))
     for base in bases:
-        if show_rc:
-            base = reverse_complement(base)
         chanel_index = bases.index(base)
         trace_y = [1.0 * ci / trmax for ci in traces_y[chanel_index]]
+        if show_rc:
+            base = reverse_complement(base)
         ax.plot(trace_x, trace_y, color=_colors[base], lw=2, label=base)
-        ax.fill_between(
-            trace_x, 0, trace_y, facecolor=_colors[base], alpha=0.125
-        )
+        ax.fill_between(trace_x, 0, trace_y, facecolor=_colors[base], alpha=0.125)
 
     # Plot bases at peak positions
     if show_bases:
@@ -155,7 +153,8 @@ def show_reference(
     ax: Axes,
     ref_central: Optional[int] = None,
 ) -> Axes:
-    """show the reference of the chromatograph.
+    """
+    show the reference of the chromatograph.
 
     design: if location is not proviode, do the alignment first
     @param seq: input SeqRecord of ref
@@ -200,7 +199,9 @@ def show_reference(
 def highlight_base(
     pos_highlight: int, seq: SeqRecord, ax: Axes, passed_filter=True
 ) -> Axes:
-    """Highlight the area around a peak with a rectangle."""
+    """
+    Highlight the area around a peak with a rectangle.
+    """
 
     peaks = seq.annotations["peak positions"]
     peak = peaks[pos_highlight - 1]
@@ -237,7 +238,9 @@ def highlight_base(
 
 
 def annotate_mutation(mut: SitePair, seq: SeqRecord, ax) -> Axes:
-    """Annotate mutation pattern chromatograph position."""
+    """
+    Annotate mutation pattern chromatograph position.
+    """
     peaks = seq.annotations["peak positions"]
     peak = peaks[mut.cf_pos - 1]
     ax.text(
