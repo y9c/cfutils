@@ -1,5 +1,4 @@
 [![Readthedocs](https://readthedocs.org/projects/cfutils/badge/?version=latest)](https://cfutils.readthedocs.io/en/latest/?badge=latest)
-[![Build Status](https://img.shields.io/travis/y9c/cfutils.svg)](https://travis-ci.org/y9c/cfutils)
 [![Pypi Releases](https://img.shields.io/pypi/v/cfutils.svg)](https://pypi.python.org/pypi/cfutils)
 [![Downloads](https://static.pepy.tech/badge/cfutils)](https://pepy.tech/project/cfutils)
 
