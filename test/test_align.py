@@ -4,8 +4,8 @@
 import sys
 import unittest
 
-from cfutils.align import align_chromatograph
-from cfutils.parser import parse_abi
+from cfutils.align import align_chromatograph, call_mutations
+from cfutils.parser import parse_abi, parse_fasta
 
 try:
     assert sys.version_info > (3, 6)
@@ -16,16 +16,19 @@ except AssertionError:
 class TestAlignFunc(unittest.TestCase):
     """Test cfutils/align.py."""
 
-    def test_align(self):
-        """Test align."""
-        from pkg_resources import resource_stream
+    def setUp(self):
+        self.query_record = parse_abi("./data/B5-M13R_B07.ab1")
+        self.subject_record = parse_fasta("./data/ref.fa")
 
-        input_file = resource_stream(__name__, "../data/C5-3k_SEQ_R_A04.ab1")
-        seq = parse_abi(input_file)
+    def test_align_chromatograph(self):
+        """Test align_chromatograph function."""
+        sitepairs = align_chromatograph(self.query_record, self.subject_record)
+        self.assertIsInstance(sitepairs, list)
 
-        subject_fasta = "./data/ref.fa"
-        align_chromatograph(seq, subject_fasta)
-        input_file.close()
+    def test_call_mutations(self):
+        """Test call_mutations function."""
+        mutations = call_mutations(self.query_record, self.subject_record)
+        self.assertIsInstance(mutations, list)
 
 
 if __name__ == "__main__":

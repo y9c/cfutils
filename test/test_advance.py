@@ -8,6 +8,7 @@ import unittest
 #  from cfutils.show import highlight_base, plot_chromatograph
 #  from cfutils.parser import parse_abi, parse_fasta
 from cfutils.run import report_mutation
+from cfutils.parser import SeqRecord
 
 try:
     assert sys.version_info > (3, 6)

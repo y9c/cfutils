@@ -19,7 +19,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 from cfutils.align import call_mutations
-from cfutils.parser import parse_abi, parse_fasta
+from cfutils.parser import parse_abi, parse_fasta, SeqRecord
 from cfutils.show import annotate_mutation, highlight_base, plot_chromatograph
 
 from .utils import get_logger
@@ -29,7 +29,7 @@ mpl.use("Agg", force=True)
 LOGGER = get_logger(__name__)
 
 
-def do_mutation_showing(query_record, mutations: List, output_fig_file: str) -> None:
+def do_mutation_showing(query_record: SeqRecord, mutations: List, output_fig_file: str) -> None:
     """report mutations in pdf format."""
     min_base_qual = 50
     min_local_qual = 20

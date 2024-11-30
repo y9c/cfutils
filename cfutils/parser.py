@@ -13,7 +13,9 @@
 # Created: 2019-08-30 13:51
 
 
-"""Bio.SeqIO parser for the ABI format.
+"""parser for the ABI format.
+
+Learned from Bio.SeqIO 
 
 ABI is the format used by Applied Biosystem's sequencing machines to store
 sequencing results.
@@ -24,11 +26,7 @@ http://www.appliedbiosystem.com/support/software_community/ABIF_File_Format.pdf
 
 import datetime
 import struct
-from os.path import basename
-
-from Bio import SeqIO
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
+from pathlib import Path
 
 # dictionary for determining which tags goes into SeqRecord annotation
 # each key is tag_name + tag_number
@@ -88,6 +86,28 @@ _BYTEFMT = {
 _HEADFMT = ">H4sI2H3I"
 # directory data structure
 _DIRFMT = ">4sI2H4I"
+
+
+class SeqRecord:
+    def __init__(self, seq, id="", name="", description="", annotations=None, letter_annotations=None):
+        self.seq = str(seq)  # Ensure sequence is stored as a string
+        self.id = id
+        self.name = name
+        self.description = description
+        self.annotations = annotations if annotations is not None else {}
+        self.letter_annotations = letter_annotations if letter_annotations is not None else {}
+
+    def __getitem__(self, key):
+        new_seq = self.seq[key]
+        new_annotations = self.annotations.copy()
+        new_letter_annotations = {k: v[key] for k, v in self.letter_annotations.items()}
+        return SeqRecord(new_seq, self.id, self.name, self.description, new_annotations, new_letter_annotations)
+
+    def __len__(self):
+        return len(self.seq)
+
+    def __str__(self):
+        return self.seq  # Return the sequence string for display
 
 
 def abi_iterator(handle):
@@ -158,12 +178,12 @@ def abi_iterator(handle):
 
     # use the file name as SeqRecord.name if available
     #  try:
-    file_name = basename(handle.name).replace(".ab1", "")
+    file_name = Path(handle.name).stem
     #  except:
     #  file_name = ""
 
     record = SeqRecord(
-        Seq(seq),
+        seq,  # Use the sequence string directly
         id=sample_id,
         name=file_name,
         description="",
@@ -171,7 +191,6 @@ def abi_iterator(handle):
         letter_annotations={"phred_quality": qual},
     )
 
-    #  yield _abi_trim(record)
     yield record
 
 
@@ -369,4 +388,9 @@ def parse_fasta(filename: str) -> SeqRecord:
     :type filename: str
     :rtype: SeqRecord
     """
-    return SeqIO.read(filename, "fasta")
+    with open(filename, "r") as file:
+        lines = file.readlines()
+        id_line = lines[0].strip()
+        sequence = ''.join(line.strip() for line in lines[1:])
+        seq_id = id_line[1:] if id_line.startswith('>') else ''
+        return SeqRecord(sequence, id=seq_id)

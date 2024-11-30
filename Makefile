@@ -1,11 +1,11 @@
 .PHONY: init test
 
 init:
-	peotry install --no-dev
+	poetry install --no-dev
 
 dev:
-	peotry install
-	peotry shell
+	poetry install
+	poetry shell
 
 test:
 	python -m unittest test.test_basic

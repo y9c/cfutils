@@ -21,10 +21,10 @@ from typing import Optional, Tuple
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from Bio.SeqRecord import SeqRecord
 from matplotlib.axes import Axes
 
 from .align import SitePair, align_chromatograph
+from .parser import SeqRecord  # Import the custom SeqRecord class
 from .utils import get_logger, reverse_complement
 
 LOGGER = get_logger(__name__)
@@ -70,15 +70,18 @@ def plot_chromatograph(
 
     xlim_left, xlim_right = peaks[region_start] - 1, peaks[region_end] + 0.5
 
+    # Ensure seq is treated as a string
+    sequence_str = seq.seq
+
     # subset peak and sequence
     # TODO: this might fix the bug
     peak_start = peaks[0]
     peak_zip = [
         (p, s)
-        for i, (p, s) in enumerate(zip(peaks, seq))
+        for i, (p, s) in enumerate(zip(peaks, sequence_str))
         if region_start <= i <= region_end
     ]
-    peaks, seq = list(zip(*peak_zip))
+    peaks, sequence_str = list(zip(*peak_zip))
 
     # subset trace_x and traces_y together
     trace_zip = [
@@ -103,8 +106,7 @@ def plot_chromatograph(
     # Plot bases at peak positions
     if show_bases:
         for i, peak in enumerate(peaks):
-            #  LOGGER.debug(f"{i}, {peak}, {seq[i]}, {xlim_left + i}")
-            b = reverse_complement(seq[i]) if show_rc else seq[i]
+            b = reverse_complement(sequence_str[i]) if show_rc else sequence_str[i]
             ax.text(
                 peak,
                 -0.11,

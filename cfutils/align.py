@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from typing import List, Optional, Tuple
 
 import ssw
-from Bio.SeqRecord import SeqRecord
+from .parser import SeqRecord
 
 from .utils import get_logger
 
