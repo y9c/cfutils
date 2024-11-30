@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cfutils"
-version = "0.0.0.dev60"
+version = "0.0.0.dev61"
 description = "Chromatogram File Utils"
 authors = ["Ye Chang <yech1990@gmail.com>"]
 license = "MIT"
