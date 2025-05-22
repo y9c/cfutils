@@ -1,34 +1,30 @@
 #!/usr/bin/env python3
-"""test for cfutils."""
+"""Unit tests for cfutils alignment functions."""
 
-import sys
 import unittest
-
 from cfutils.align import align_chromatograph, call_mutations
 from cfutils.parser import parse_abi, parse_fasta
 
-try:
-    assert sys.version_info > (3, 6)
-except AssertionError:
-    raise RuntimeError("cfutils requires Python 3.6+!")
-
 
 class TestAlignFunc(unittest.TestCase):
-    """Test cfutils/align.py."""
+    """Test alignment and mutation calling in cfutils.align."""
 
-    def setUp(self):
+    def setUp(self) -> None:
+        """Load test data for alignment tests."""
         self.query_record = parse_abi("./data/B5-M13R_B07.ab1")
         self.subject_record = parse_fasta("./data/ref.fa")
 
-    def test_align_chromatograph(self):
-        """Test align_chromatograph function."""
+    def test_align_chromatograph(self) -> None:
+        """Test align_chromatograph returns a list of site pairs."""
         sitepairs = align_chromatograph(self.query_record, self.subject_record)
         self.assertIsInstance(sitepairs, list)
+        self.assertGreater(len(sitepairs), 0, "No site pairs found.")
 
-    def test_call_mutations(self):
-        """Test call_mutations function."""
+    def test_call_mutations(self) -> None:
+        """Test call_mutations returns a list of mutations."""
         mutations = call_mutations(self.query_record, self.subject_record)
         self.assertIsInstance(mutations, list)
+        # Optionally check mutation structure if known
 
 
 if __name__ == "__main__":

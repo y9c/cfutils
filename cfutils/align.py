@@ -39,6 +39,15 @@ class SitePair:
 
 
 def run_align(reference: str, query: str) -> List[SitePair]:
+    """Align query sequence with reference sequence.
+
+    Args:
+        reference (str): The reference sequence.
+        query (str): The query sequence.
+
+    Returns:
+        List[SitePair]: A list of SitePair objects representing alignment.
+    """
     aligner = ssw.Aligner()
     alignment = aligner.align(reference=reference, query=query)
     results = []

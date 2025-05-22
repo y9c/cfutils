@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-"""test for cfutils"""
+"""Basic environment and sanity tests for cfutils."""
 
 import sys
 import unittest
 
 
 class TestBasicFunc(unittest.TestCase):
-    """Test basic"""
+    """Test basic environment requirements for cfutils."""
 
-    def test_basic(self):
-        """Test basic"""
-        self.assertGreaterEqual(sys.version_info, (3, 6))
+    def test_python_version(self) -> None:
+        """Ensure Python version is >= 3.6."""
+        self.assertGreaterEqual(sys.version_info, (3, 6), "Python 3.6+ is required.")
 
 
 if __name__ == "__main__":

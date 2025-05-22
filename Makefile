@@ -1,14 +1,22 @@
-.PHONY: init test
+# Improved Makefile for cfutils
+.PHONY: init dev test clean lock
 
+# Install dependencies (production only)
 init:
-	poetry install --no-dev
+	uv pip install --no-deps
 
+# Install all dependencies (dev + prod)
 dev:
-	poetry install
-	poetry shell
+	uv pip install
 
+# Run all tests
 test:
-	python -m unittest test.test_basic
-	python -m unittest test.test_show
-	# python -m unittest test.test_align
-	python -m unittest test.test_advance
+	python -m unittest discover -s test
+
+# Remove Python cache and temp files
+clean:
+	rm -rf __pycache__ */__pycache__ *.pyc *.pyo *.pyd temp/* test/__pycache__ cfutils/__pycache__
+
+# Update lock file from pyproject.toml
+lock:
+	uv pip compile
